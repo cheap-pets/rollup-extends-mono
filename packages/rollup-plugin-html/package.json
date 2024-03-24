@@ -1,0 +1,23 @@
+{
+  "name": "@cheap-pets/rollup-plugin-html",
+  "version": "1.0.0",
+  "description": "用于 Rollup 的 HTML 文件转换插件。",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "module": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@rollup/pluginutils": "^5.1.0",
+    "cheerio": "^1.0.0-rc.12",
+    "ejs": "^3.1.9",
+    "fs-extra": "^11.2.0",
+    "js-beautify": "^1.15.1"
+  }
+}

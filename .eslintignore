@@ -1,0 +1,6 @@
+/*.*
+*.html
+*.min.*
+dist
+node_modules
+xlsx-preview.umd.js

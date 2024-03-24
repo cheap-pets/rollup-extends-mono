@@ -1,0 +1,19 @@
+{
+  "name": "@cheap-pets/rollup-example-service",
+  "version": "1.0.0",
+  "description": "打包服务示例",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "rollup": "^4.9.6",
+    "@cheap-pets/rollup-preset-node": "workspace:^1.0"
+  }
+}

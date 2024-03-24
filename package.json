@@ -1,0 +1,21 @@
+{
+  "name": "@cheap-pets/rollup-presets-mono",
+  "version": "1.0.0",
+  "description": "适用于团队项目的一些 Rollup 打包配置",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+  },
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": true,
+  "config": {
+    "cz-customizable": {
+      "config": ".cz-config.cjs"
+    }
+  },
+  "devDependencies": {
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "root": true,
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "babelOptions": {
+      "configFile": "./babel.config.cjs"
+    }
+  },
+  "extends": [
+    "standard",
+    "plugin:node/recommended",
+    "plugin:security/recommended-legacy"
+  ],
+  "plugins": [
+    "node",
+    "security"
+  ],
+  "env": {
+    "es2022": true,
+    "node": true
+  },
+  "rules": {
+    "prefer-const": 2,
+    "complexity": [1, 10],
+    "max-len": [
+      1,
+      {
+        "code": 120,
+        "tabWidth": 2,
+        "ignoreUrls": true,
+        "ignoreStrings": false,
+        "ignoreComments": true,
+        "ignoreRegExpLiterals": true,
+        "ignoreTrailingComments": true,
+        "ignoreTemplateLiterals": true
+      }
+    ]
+  }
+}

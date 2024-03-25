@@ -1,6 +1,7 @@
-import compress from '../utils/compress.js'
-
+import { compress } from '../utils/compress.js'
 import { resolveOutputPath, relativeFromCwd } from '../utils/path.js'
+
+const alias = 'ZIP'
 
 export default function plugin (options = {}) {
   return {
@@ -11,8 +12,8 @@ export default function plugin (options = {}) {
         const related = relativeFromCwd(file)
 
         await compress(file, options)
-          .then(() => this.info({ success: true, message: `"${related}" is compressed.` }))
-          .catch(() => this.warn({ message: `failed to compress "${related}".` }))
+          .then(() => this.info({ alias, success: true, message: `"${related}" is compressed.` }))
+          .catch(() => this.warn({ alias, message: `failed to compress "${related}".` }))
       }
     }
   }

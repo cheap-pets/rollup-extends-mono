@@ -9,6 +9,8 @@ import {
   gray
 } from 'colorette'
 
+import { constantCase } from 'change-case'
+
 const IGNORE_CODES = [
   'UNUSED_EXTERNAL_IMPORT',
   'UNKNOWN_OPTION'
@@ -88,10 +90,10 @@ function resolveLevelType (level, log) {
   )
 }
 
-function resolveCodes (level, { plugin, pluginCode, code = 'UNKNOWN' }) {
+function resolveCodes (level, { plugin, alias, pluginCode, code = 'UNKNOWN' }) {
   const codes = []
 
-  if (plugin) codes.push(plugin)
+  if (plugin) codes.push(constantCase(alias || plugin))
   if (pluginCode) codes.push(pluginCode)
   if (['warn', 'error'].includes(level) && !codes.length) codes.push(code)
 

@@ -38,7 +38,7 @@ function brotliCompress (file) {
   return pipe(src, compressor, dest)
 }
 
-export default function compress (file, options = {}) {
+export function compress (file, options = {}) {
   return Promise.all([
     (options.gzip !== false) && gzipCompress(file),
     (options.brotli && brotliCompress(file))

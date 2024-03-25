@@ -3,8 +3,8 @@ import path from 'path'
 import chokidar from 'chokidar'
 
 import { glob } from 'glob'
-import { blue, cyan } from 'colorette'
 import { copy as fsCopy, pathExists } from 'fs-extra'
+import { relativeFromCwd } from '../utils/path.js'
 
 import compress from '../utils/compress.js'
 
@@ -14,15 +14,12 @@ export default function plugin (options = {}) {
   const {
     copyOnce = true,
     verbose = true,
-    compress = 'gz,br',
     entries = []
   } = options
 
-  const encoder = !isDevEnv && getEncoder(compress)
-
   async function copy (file, dest) {
     const fileName = path.basename(file)
-    const target = path.resolve(cwd, dest, fileName)
+    const target = path.resolve(dest, fileName)
     const ext = path.extname(file)
 
     await fsCopy(file, target)
@@ -32,10 +29,10 @@ export default function plugin (options = {}) {
     }
 
     if (encoder && ['.js', '.css'].includes(ext)) {
-      await encoder(target)
+      await compress(target, options.compress)
 
       if (verbose) {
-        console.log(cyan(`[ZIP] ${path.relative(cwd, target)}`))
+        console.log(cyan(`[ZIP] ${relativeFromCwd(target)}`))
       }
     }
   }

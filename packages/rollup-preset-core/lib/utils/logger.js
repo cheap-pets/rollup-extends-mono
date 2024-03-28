@@ -17,11 +17,11 @@ const IGNORE_CODES = [
 ]
 
 const badges = {
+  debug: '[>]',
   info: '[i]',
   warn: '[!]',
   error: '[x]',
-  success: '[√]',
-  debug: '[>]'
+  success: '[√]'
 }
 
 const colors = {

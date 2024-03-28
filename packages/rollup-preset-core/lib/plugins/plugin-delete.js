@@ -5,14 +5,11 @@ import { remove } from 'fs-extra'
 import { resolve } from 'node:path'
 import { resolveOutputPath, relativeFromCwd } from '../utils/path.js'
 
-const removed = {}
+const handled = {}
 const alias = 'DEL'
 
 function plugin (options = {}) {
-  const {
-    once = true,
-    targets = []
-  } = options
+  const { targets = [] } = options
 
   const generated = {}
 
@@ -20,13 +17,12 @@ function plugin (options = {}) {
     name: 'delete',
 
     async buildStart () {
-      const unremoved = targets.filter(el =>
-        (!once || !removed[el]) &&
-        (removed[el] = true)
+      const unhandled = targets.filter(
+        el => !handled[el] && (handled[el] = true)
       )
 
-      if (unremoved.length) {
-        const paths = await glob(unremoved)
+      if (unhandled.length) {
+        const paths = await glob(unhandled)
 
         for (const el of paths) {
           await remove(resolve(el))

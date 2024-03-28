@@ -37,7 +37,14 @@ const rollupConfig = generateRollupConfig({
       plugin: 'delete',
       option: { targets: ['dist/*'] }
     },
-    // ['delete', { targets: ['dist/*'], verbose: true }],
+    [
+      'copy',
+      {
+        targets: {
+          'src/assets': 'dist/assets'
+        }
+      }
+    ],
     'compress',
     myPlugin
   ],

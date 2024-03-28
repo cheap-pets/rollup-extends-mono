@@ -1,93 +1,55 @@
-import fs from 'fs'
-import path from 'path'
-import chokidar from 'chokidar'
-
 import { glob } from 'glob'
-import { copy as fsCopy, pathExists } from 'fs-extra'
-import { relativeFromCwd } from '../utils/path.js'
+import { relative } from 'node:path'
+import { copy } from '../utils/copy'
+import { isObject } from '../utils/type.js'
 
-import compress from '../utils/compress.js'
+const handled = {}
+const alias = 'CPY'
 
-const isDevEnv = process.env.dev
-
-export default function plugin (options = {}) {
-  const {
-    copyOnce = true,
-    verbose = true,
-    entries = []
-  } = options
-
-  async function copy (file, dest) {
-    const fileName = path.basename(file)
-    const target = path.resolve(dest, fileName)
-    const ext = path.extname(file)
-
-    await fsCopy(file, target)
-
-    if (verbose) {
-      console.log(blue(`[CPY] ${fileName} → ${dest}`))
-    }
-
-    if (encoder && ['.js', '.css'].includes(ext)) {
-      await compress(target, options.compress)
-
-      if (verbose) {
-        console.log(cyan(`[ZIP] ${relativeFromCwd(target)}`))
-      }
-    }
-  }
-
-  function srcIsDir (entry) {
-    const src = entry.src
-    const srcDir = path.resolve(cwd, src)
-
-    if (pathExistsSync(srcDir) && fs.statSync(src).isDirectory()) {
-      entry.src += '/**/*'
-      return true
-    }
-    return false
-  }
-
-  let copied = false
+function plugin (options = {}) {
+  const targets = isObject(options.targets)
+    ? Object
+      .entries(options.targets)
+      .map(el => ({ src: el[0], dest: el[1] }))
+    : Array.isArray(options.targets)
+      ? options.targets
+      : []
 
   return {
     name: 'copy',
-    buildEnd: async () => {
-      if (options === false || (copyOnce && copied)) return
 
-      if (!Array.isArray(entries)) {
-        throw Error('"entries" option should be specified with an array!')
+    async buildStart () {
+      function internalCopy (src, dest) {
+        return copy(src, dest)
+          .then(res => res && this.info({ alias, success: true, message: `"${src}" is copied.` }))
+          .catch(() => this.warn({ alias, error: true, message: `failed to copy "${src}".` }))
       }
 
-      const watches = {}
+      const unhandled = targets.filter(
+        el => !handled[el.src] && (handled[el.src] = true)
+      )
 
-      for (const el of entries) {
-        const srcDir = path.resolve(el.src)
-        const srcFileIsDir = srcIsDir(el)
+      if (unhandled.length) {
+        for (const el of unhandled) {
+          const paths = (await glob(el.src))
+            .sort()
+            .reduce((result, path) => {
+              const prev = result.length && result.slice(-1)
 
-        const files = glob.sync(el.src, { nodir: true })
+              if (!prev || relative(prev, path).startsWith('..')) {
+                result.push(path)
+              }
 
-        for (const file of files) {
-          const src = path.resolve(file)
+              return result
+            }, [])
 
-          const relativePath = path.relative(srcDir, path.dirname(src))
-          const destPath = srcFileIsDir ? path.resolve(el.dest, relativePath) : el.dest
-
-          await copy(src, destPath)
-
-          if (isDevEnv) watches[src] = destPath
+          for (const src of paths) {
+            await internalCopy(src, el.dest)
+          }
         }
       }
-
-      const watchFiles = Object.keys(watches)
-
-      if (watchFiles.length) {
-        const watcher = chokidar.watch(watchFiles)
-
-        watcher.on('change', file => copy(file, watches[file]))
-      }
-
-      copied = true
     }
   }
 }
+
+export default plugin

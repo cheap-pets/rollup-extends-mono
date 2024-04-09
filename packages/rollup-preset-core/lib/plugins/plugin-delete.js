@@ -8,15 +8,15 @@ import { resolveOutputPath, relativeFromCwd } from '../utils/path.js'
 const handled = {}
 const alias = 'DEL'
 
-function plugin (options = {}) {
-  const { targets = [] } = options
+function plugin (pluginOptions = {}) {
+  const { targets = [] } = pluginOptions
 
   const generated = {}
 
   return {
     name: 'delete',
 
-    async buildStart () {
+    async options () {
       const unhandled = targets.filter(
         el => !handled[el] && (handled[el] = true)
       )

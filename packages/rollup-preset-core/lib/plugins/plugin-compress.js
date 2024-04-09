@@ -7,6 +7,8 @@ export default function plugin (options = {}) {
   return {
     name: 'compress',
     async writeBundle (outputOptions, bundle) {
+      if (this.meta.watchMode && options.watchMode !== true) return
+
       for (const chunk of Object.values(bundle)) {
         const file = resolveOutputPath(outputOptions, chunk.fileName)
         const related = relativeFromCwd(file)

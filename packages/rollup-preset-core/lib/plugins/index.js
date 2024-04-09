@@ -2,11 +2,13 @@
 
 import { isFunction, isObject, isString } from '../utils/type.js'
 
+import pluginCopy from './plugin-copy.js'
 import pluginDelete from './plugin-delete.js'
 import pluginString from './plugin-string.js'
 import pluginCompress from './plugin-compress.js'
 
 const plugins = {
+  copy: { plugin: pluginCopy },
   delete: { plugin: pluginDelete },
   string: { plugin: pluginString },
   compress: { plugin: pluginCompress, defaultOption: { gzip: true, brotli: true } }

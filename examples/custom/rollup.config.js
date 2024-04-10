@@ -32,6 +32,7 @@ const rollupConfig = generateRollupConfig({
     // 'src/index-a-x.js',
     // { app: 'src/index-a.js' },
     ['src/index-a-*.js', 'src/index-b.js'],
+  separateInputs: false,
   plugins: [
     {
       plugin: 'delete',
@@ -53,6 +54,7 @@ const rollupConfig = generateRollupConfig({
       // format: 'iife',
       // name: 'app',
       dir: 'dist',
+      hashCharacters: 'base36',
       // hash: true
       // entryFileNames: '[name].[hash].js'
       entryFileNames (chunkInfo) {
@@ -63,6 +65,7 @@ const rollupConfig = generateRollupConfig({
     },
     {
       dir: 'dist',
+      hashCharacters: 'base36',
       entryFileNames (chunkInfo) {
         return chunkInfo.name === 'b'
           ? '[name].min.js'

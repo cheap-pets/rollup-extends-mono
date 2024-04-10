@@ -47,20 +47,23 @@ function processRollupEntry (entryOptions) {
     input: rawInput,
     output,
     plugins,
-    separateInputs,
+    separateEntries,
     ...config
   } = entryOptions
 
   function buildConfig (input) {
-    return {
+    const entryConfig = {
       onLog,
       input,
-      plugins: plugins?.map(el => processPlugin(el)),
       output:
         Array.isArray(output)
           ? output.map(el => processOutputConfig(el))
           : processOutputConfig(output),
       ...config
+    }
+
+    if (plugins) {
+      entryConfig.plugins = plugins.map(el => processPlugin(el))
     }
   }
 
@@ -70,7 +73,7 @@ function processRollupEntry (entryOptions) {
       ? rawInput
       : getFilteredGlobFiles(rawInput)
 
-  return separateInputs && isObject(input)
+  return separateEntries && isObject(input)
     ? Object.entries(input).map(([key, value]) => buildConfig({ [key]: value }))
     : buildConfig(input)
 }

@@ -68,7 +68,11 @@ function resolveIdLines (id, ids = []) {
 }
 
 function resolveMessageLines (level, log) {
-  const lines = [...splitMultiLines(log.message)]
+  const message = log.plugin
+    ? log.message.replace(/^\[plugin .*?\]/, '')
+    : log.message
+
+  const lines = [...splitMultiLines(message.trim())]
 
   if (lines.length > 1) lines.unshift('')
 
@@ -90,18 +94,23 @@ function resolveLevelType (level, log) {
   )
 }
 
-function resolveCodes (level, { plugin, alias, pluginCode, code = 'UNKNOWN' }) {
+function resolveCodes (level, { plugin, pluginAction, pluginCode, code = 'UNKNOWN' }) {
   const codes = []
 
-  if (plugin) codes.push(constantCase(alias || plugin))
-  if (pluginCode) codes.push(pluginCode)
+  if (pluginAction) {
+    codes.push(pluginAction.toUpperCase())
+  } else {
+    if (plugin) codes.push(constantCase(plugin))
+    if (pluginCode) codes.push(constantCase(pluginCode))
+  }
+
   if (['warn', 'error'].includes(level) && !codes.length) codes.push(code)
 
   return codes
 }
 
 function onLog (level, log) {
-  if (IGNORE_CODES.includes(log.code)) return
+  if (!log.message || IGNORE_CODES.includes(log.code)) return
 
   const time = gray(formatTime(new Date()))
   const type = resolveLevelType(level, log)

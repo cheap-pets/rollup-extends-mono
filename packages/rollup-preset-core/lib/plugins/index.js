@@ -7,26 +7,11 @@ import pluginDelete from './plugin-delete.js'
 import pluginString from './plugin-string.js'
 import pluginCompress from './plugin-compress.js'
 
-const plugins = {
+const store = {
   copy: { plugin: pluginCopy },
   delete: { plugin: pluginDelete },
   string: { plugin: pluginString },
-  compress: { plugin: pluginCompress, defaultOption: { gzip: true, brotli: true } }
-}
-
-function setPlugin (pluginAlias, { plugin, defaultOption, defaultOutputOption }) {
-  if (!plugins[pluginAlias] || plugin) {
-    plugins[pluginAlias] = {
-      plugin,
-      defaultOption,
-      defaultOutputOption
-    }
-  } else {
-    Object.assign(plugins[pluginAlias], {
-      defaultOption,
-      defaultOutputOption
-    })
-  }
+  compress: { plugin: pluginCompress }
 }
 
 function isNestedPluginObject (obj) {
@@ -44,7 +29,7 @@ function processPluginFromFunction (fn, pluginOption) {
 function processPluginFromAlias (alias, pluginOption, output) {
   if (!isString(alias)) return
 
-  const { plugin, defaultOption, defaultOutputOption } = plugins[alias]
+  const { plugin, defaultOption, defaultOutputOption } = store[alias]
 
   return (
     processPluginFromFunction(
@@ -75,7 +60,7 @@ function processPluginFromObject (obj, output) {
   )
 }
 
-function processPlugin (pluginItem, output = false) {
+export function processPlugin (pluginItem, output = false) {
   const result =
     processPluginFromAlias(pluginItem, output) ||
     processPluginFromArray(pluginItem, output) ||
@@ -85,7 +70,14 @@ function processPlugin (pluginItem, output = false) {
   return result
 }
 
-export {
-  setPlugin,
-  processPlugin
+export function registerPlugin (name, options) {
+  store[name] = (isFunction(options) || !options.plugin)
+    ? { plugin: options }
+    : { ...options }
+}
+
+export function updatePluginOptions (name, options) {
+  const { plugin, ...pluginOptions } = options
+
+  Object.assign(store[name], pluginOptions)
 }

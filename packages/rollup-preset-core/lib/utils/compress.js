@@ -41,6 +41,6 @@ function brotliCompress (file) {
 export function compress (file, options = {}) {
   return Promise.all([
     (options.gzip !== false) && gzipCompress(file),
-    (options.brotli && brotliCompress(file))
+    (options.brotli !== false && brotliCompress(file))
   ])
 }

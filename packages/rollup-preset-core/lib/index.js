@@ -1,12 +1,12 @@
 import yargs from 'yargs/yargs'
 
 import { parse, basename, dirname } from 'node:path'
-import { kebabCase } from 'change-case' // camelCase, pascalCase,
+import { kebabCase } from 'change-case'
 import { hideBin } from 'yargs/helpers'
 import { glob } from 'glob'
 
-import { processPlugin } from './plugins/index.js'
 import { isObject, isString } from './utils/type.js'
+import { processPlugin } from './plugins/index.js'
 import { onLog } from './utils/logger.js'
 
 const argv = yargs(hideBin(process.argv)).argv
@@ -18,16 +18,6 @@ function parseModuleName (input) {
   const inline = filename.startsWith('index-') && filename.substr(6)
 
   return inline || kebabCase(basename(dirname(input)))
-}
-
-function processOutputConfig (rawOutputConfig) {
-  const { plugins, ...config } = rawOutputConfig
-
-  if (plugins) {
-    config.plugins = plugins.map(plugin => processPlugin(plugin, true))
-  }
-
-  return config
 }
 
 function getFilteredGlobFiles (input) {
@@ -42,30 +32,40 @@ function getFilteredGlobFiles (input) {
   return Object.fromEntries(entries)
 }
 
-function processRollupEntry (entryOptions) {
+function processEntryConfig (options) {
   const {
     input: rawInput,
-    output,
-    plugins,
+    output: rawOutput,
+    plugins: rawPlugins,
     separateInputs,
     ...config
-  } = entryOptions
+  } = options
+
+  function buildOutputConfig (output) {
+    const { plugins, ...outputConfig } = output
+
+    if (plugins) {
+      outputConfig.plugins = plugins.map(plugin => processPlugin(plugin, true))
+    }
+
+    return outputConfig
+  }
 
   function buildConfig (input) {
     return {
       onLog,
       input,
-      plugins: plugins?.map(el => processPlugin(el)),
+      plugins: rawPlugins?.map(el => processPlugin(el)),
       output:
-        Array.isArray(output)
-          ? output.map(el => processOutputConfig(el))
-          : processOutputConfig(output),
+        Array.isArray(rawOutput)
+          ? rawOutput.map(el => buildOutputConfig(el))
+          : buildOutputConfig(rawOutput),
       ...config
     }
   }
 
-  const input = output.file || isObject(rawInput)
-    ? entryOptions.input
+  const input = rawOutput.file || isObject(rawInput)
+    ? config.input
     : isString(rawInput) && !rawInput.includes('*')
       ? rawInput
       : getFilteredGlobFiles(rawInput)
@@ -77,9 +77,9 @@ function processRollupEntry (entryOptions) {
 
 function generateRollupConfig (options) {
   return Array.isArray(options)
-    ? options.map(el => processRollupEntry(el)).flat()
-    : processRollupEntry(options)
+    ? options.map(el => processEntryConfig(el)).flat()
+    : processEntryConfig(options)
 }
 
 export { generateRollupConfig }
-// export { plugins } from './plugins/index.js'
+export { registerPlugin, updatePluginOptions } from './plugins/index.js'

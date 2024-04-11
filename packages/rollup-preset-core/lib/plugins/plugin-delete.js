@@ -6,7 +6,7 @@ import { resolve } from 'node:path'
 import { resolveOutputPath, relativeFromCwd } from '../utils/path.js'
 
 const handled = {}
-const alias = 'DEL'
+const pluginAction = 'DEL'
 
 function plugin (pluginOptions = {}) {
   const { targets = [] } = pluginOptions
@@ -26,8 +26,8 @@ function plugin (pluginOptions = {}) {
 
         for (const el of paths) {
           await remove(resolve(el))
-            .then(() => this.info({ alias, success: true, message: `"${el}" is deleted.` }))
-            .catch(() => this.warn({ alias, error: true, message: `failed to remove "${el}".` }))
+            .then(() => this.info({ pluginAction, success: true, message: `"${el}" is deleted.` }))
+            .catch(() => this.warn({ pluginAction, error: true, message: `failed to remove "${el}".` }))
         }
       }
     },
@@ -48,8 +48,12 @@ function plugin (pluginOptions = {}) {
           const relatedPath = relativeFromCwd(oldFilePath)
 
           await remove(oldFilePath)
-            .then(() => this.info({ alias, success: true, message: `"${relatedPath}" is deleted.` }))
-            .catch(() => this.warn({ alias, error: true, message: `failed to remove "${oldFile}".` }))
+            .then(() =>
+              this.info({ pluginAction, success: true, message: `"${relatedPath}" is deleted.` })
+            )
+            .catch(() =>
+              this.warn({ pluginAction, error: true, message: `failed to remove "${oldFile}".` })
+            )
         }
       }
     }

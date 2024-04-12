@@ -13,7 +13,7 @@ const {
 
 const pipe = promisify(pipeline)
 
-function gzipCompress (file) {
+export function gzipCompress (file) {
   const src = createReadStream(file)
   const dest = createWriteStream(`${file}.gz`)
 
@@ -24,7 +24,7 @@ function gzipCompress (file) {
   return pipe(src, compressor, dest)
 }
 
-function brotliCompress (file) {
+export function brotliCompress (file) {
   const src = createReadStream(file)
   const dest = createWriteStream(`${file}.br`)
 
@@ -39,8 +39,10 @@ function brotliCompress (file) {
 }
 
 export function compress (file, options = {}) {
+  const { gzip, brotli } = options
+
   return Promise.all([
-    (options.gzip !== false) && gzipCompress(file),
-    (options.brotli !== false && brotliCompress(file))
+    (gzip !== false && gzipCompress(file)),
+    (brotli && brotliCompress(file))
   ])
 }

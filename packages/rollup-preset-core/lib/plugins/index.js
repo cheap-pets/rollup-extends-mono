@@ -6,12 +6,14 @@ import pluginCopy from './plugin-copy.js'
 import pluginDelete from './plugin-delete.js'
 import pluginString from './plugin-string.js'
 import pluginCompress from './plugin-compress.js'
+import pluginGlobImport from './plugin-glob-import.js'
 
 const store = {
   copy: { plugin: pluginCopy },
   delete: { plugin: pluginDelete },
   string: { plugin: pluginString },
-  compress: { plugin: pluginCompress }
+  compress: { plugin: pluginCompress },
+  globImport: { plugin: pluginGlobImport }
 }
 
 function isNestedPluginObject (obj) {
@@ -27,7 +29,7 @@ function processPluginFromFunction (fn, pluginOption) {
 }
 
 function processPluginFromAlias (alias, pluginOption, output) {
-  if (!isString(alias)) return
+  if (!isString(alias) || !store[alias]) return
 
   const { plugin, defaultOption, defaultOutputOption } = store[alias]
 

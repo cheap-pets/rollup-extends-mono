@@ -5,6 +5,8 @@ import { generateRollupConfig } from '@cheap-pets/rollup-preset-core'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import pluginHtml from '@cheap-pets/rollup-plugin-html'
+
 process.chdir(
   dirname(fileURLToPath(import.meta.url))
 )
@@ -46,6 +48,8 @@ const rollupConfig = generateRollupConfig({
         }
       }
     ],
+    'globImport',
+    pluginHtml,
     'compress',
     myPlugin
   ],

@@ -11,3 +11,9 @@ export function resolveOutputPath (outputOption, fileName) {
 export function relativeFromCwd (to) {
   return path.relative(process.cwd(), to)
 }
+
+export function changeExtension (filePath, newExtension) {
+  const { dir, name } = path.parse(filePath)
+
+  return path.join(dir, `${name}${newExtension}`)
+}

@@ -10,6 +10,9 @@ importers:
 
   examples/custom:
     devDependencies:
+      '@cheap-pets/rollup-plugin-html':
+        specifier: workspace:^1.0
+        version: link:../../packages/rollup-plugin-html
       '@cheap-pets/rollup-preset-core':
         specifier: workspace:^1.0
         version: link:../../packages/rollup-preset-core
@@ -28,6 +31,9 @@ importers:
 
   packages/rollup-plugin-html:
     dependencies:
+      '@cheap-pets/rollup-preset-core':
+        specifier: workspace:^1.0
+        version: link:../rollup-preset-core
       '@rollup/pluginutils':
         specifier: ^5.1.0
         version: 5.1.0(rollup@4.12.0)

@@ -47,7 +47,7 @@ function plugin (pluginOptions = {}) {
           : [dest]
 
         for (const file of files) {
-          if (compressExtensions.includes(parse(file).ext.toLocaleLowerCase())) {
+          if (compressExtensions.includes(parse(file).ext.toLowerCase())) {
             await compress(file, compressOption)
               .then(() =>
                 this.info({ pluginAction: 'CPY > ZIP', success: true, message: `"${file}" is compressed.` })

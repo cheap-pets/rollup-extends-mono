@@ -30,59 +30,55 @@ function plugin (options = {}) {
     name: 'glob-import',
 
     resolveId (source, importer) {
-      return (source.includes('*') && !source.includes('?'))
-        ? `${source}?glob-importer=${importer}`
+      return source.includes('*')
+        ? `${source}?globImporter=${importer}`
         : null
     },
 
     async load (id) {
-      const matched = /(.*)\?glob-importer=([^?]+)$/.exec(id)
+      const matched = /(.*)\?globImporter=([^?]+)$/.exec(id)
 
-      if (matched) {
-        const pattern = matched[1]
-        const importer = resolve(matched[2])
-        const dir = dirname(importer)
+      if (!matched) return null
 
-        const exports = []
-        const codes = []
+      const pattern = matched[1]
+      const importer = matched[2] // resolve(matched[2])
 
-        const files = await glob(pattern, { cwd: dir, nodir: true })
+      const dir = dirname(importer)
+      const files = await glob(pattern, { cwd: dir, nodir: true })
 
-        files.forEach(el => {
-          const file = resolve(dir, el)
+      const codes = []
+      const exports = []
 
-          if (file !== importer) {
-            const importName = `$${nanoid()}`
+      files.forEach(el => {
+        const file = resolve(dir, el)
 
-            codes.push(
-              `import * as ${importName} from ${JSON.stringify(file)};`
-            )
+        if (file !== importer) {
+          const importName = `$${nanoid()}`
 
-            exports.push(
-              namedExport
-                ? [resolveModuleName(el), importName]
-                : importName
-            )
-          }
-        })
+          codes.push(
+            `import * as ${importName} from ${JSON.stringify(file)};`
+          )
 
-        if (!exports.length) return ''
+          exports.push(
+            namedExport
+              ? [resolveModuleName(el), importName]
+              : importName
+          )
+        }
+      })
 
-        codes.push(
-          namedExport
-            ? `export default {\n  ${
-                exports.map(([key, value]) => `${key}: ${value}`).join(',\n  ')
-              }\n};`
-            : `export default [\n  ${
-                exports.join(',\n  ')
-              }\n];`,
-          ''
-        )
+      codes.push(
+        namedExport
+          ? `export default {\n  ${
+              exports.map(([key, value]) => `${key}: ${value}`).join(',\n  ')
+            }\n};`
+          : `export default [\n  ${
+              exports.join(',\n  ')
+            }\n];`,
+        ''
+      )
 
-        return codes.join('\n')
-      }
-
-      return null
+      return codes.join('\n')
     }
   }
 }

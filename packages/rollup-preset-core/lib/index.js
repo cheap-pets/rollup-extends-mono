@@ -83,3 +83,5 @@ function generateRollupConfig (options) {
 
 export { generateRollupConfig }
 export { registerPlugin, updatePluginOptions } from './plugins/index.js'
+
+export * as utils from './utils/exports.js'

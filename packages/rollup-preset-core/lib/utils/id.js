@@ -1,9 +1,9 @@
 /* eslint-disable security/detect-unsafe-regex */
 /* eslint-disable security/detect-non-literal-regexp */
 
-export function parseQuery (queryString) {
-  return queryString && Object.fromEntries(
-    queryString
+export function parseQueries (query) {
+  return query && Object.fromEntries(
+    query
       .split('&')
       .map(el => [...el.split('='), true].slice(0, 2))
   )
@@ -16,15 +16,15 @@ export function idMatcherBuild (extensions = []) {
     .join('|')
 
   const matcher = extensionsPattern
-    ? new RegExp(`((?:.*?)(?:\\.(?:${extensionsPattern})))(?:\\?(.*?))?$`, 'i')
+    ? new RegExp(`((?:.*?)(?:\\.(?:${extensionsPattern})))(\\?.*?)?$`, 'i')
     : /([^?]+)(?:\?(.*))?$/
 
-  return (id, query = true) => {
+  return (id, outputQueries) => {
     const matched = matcher.exec(id)
-    const result = matched && { id: matched[1] }
+    const result = matched && { id: matched[1], query: matched[2] }
 
-    if (result && query) {
-      result.query = parseQuery(matched[2])
+    if (result && outputQueries) {
+      result.queries = parseQueries(result.query)
     }
 
     return result

@@ -1,6 +1,7 @@
 // import { helloWorldB } from './index-b'
 
-import './template/index.html?title=my-title'
+import './import-html.js'
+import './styles/index.css'
 
 // console.log(s)
 

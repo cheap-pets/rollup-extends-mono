@@ -1,74 +1,104 @@
+/* eslint-disable security/detect-object-injection */
 /* eslint-disable security/detect-non-literal-fs-filename */
 
 import { readFile } from 'node:fs/promises'
 import { utils } from '@cheap-pets/rollup-preset-core'
 
+const { resolveOutputPath } = utils.path
+const { idMatcherBuild } = utils.id
+const { isFunction } = utils.type
+
 const pluginAction = 'HTM'
 
 function plugin (pluginOptions = {}) {
   const {
+    fileName: oFileName,
     extensions = ['.htm', '.html']
   } = pluginOptions
 
-  const matchId = utils.id.idMatcherBuild(extensions)
-  const contents = {}
+  const matchId = idMatcherBuild(extensions)
+
+  let codes, sources, loaded
+
+  function transform (code, fileName, chunk, chunks) {
+
+  }
+
+  async function emitFile (sourceOption, outputOptions) {
+    const { id, chunk, chunks, queries = {} } = sourceOption
+
+    const fileName = (
+      isFunction(oFileName)
+        ? oFileName({ id, queries, chunk })
+        : oFileName || queries.fileName
+    )?.replaceAll('[chunkName]', chunk.name) || `${chunk.name}.html`
+
+    const code = (codes[id] ??= (await readFile(id)).toString())
+    const source = transform(code, fileName, chunk, chunks)
+
+    this.emitFile({
+      type: 'asset',
+      fileName,
+      source
+    })
+  }
 
   return {
     name: 'html',
+
+    buildStart () {
+      codes = {}
+      loaded = {}
+      sources = []
+    },
 
     async resolveId (source, importer) {
       const matched = matchId(source)
 
       return matched
-        ? `${source}${matched.query ? '&' : '?'}importer=${importer}`
+        ? (await this.resolve(matched.id, importer)).id + (matched.query || '')
         : null
     },
 
     async load (id) {
-      delete contents[id]
+      const matched = matchId(id, true)
 
-      const matched = matchId(id)
-      const importer = matched?.query?.importer
+      if (!matched) return null
 
-      if (!importer) return null
+      this.addWatchFile(matched.id)
 
-      const file = (await this.resolve(matched.id, importer)).id
-      const code = (await readFile(file)).toString()
-
-      const importerContents = contents[importer] || (contents[importer] = {})
-
-      Object.assign(importerContents, {
-        [matched.id]: {
-          code
-        }
-      })
+      Array
+        .from(this.getModuleIds(id))
+        .forEach(moduleId => {
+          if (this.getModuleInfo(moduleId).isEntry) {
+            (sources[moduleId] ??= {})[id] = matched
+          }
+        })
 
       return ''
     },
 
     generateBundle (outputOptions, bundle) {
-      for (const chunk of Object.values(bundle)) {
-        if (chunk.type === 'asset') continue
+      const chunks = Object.values(bundle)
+      const bundleSources = []
 
-        const file = utils.path.resolveOutputPath(outputOptions, chunk.fileName)
-        const related = utils.path.relativeFromCwd(file)
+      chunks.forEach(chunk => {
+        const entryId = (chunk.type === 'chunk') && chunk.moduleIds?.[0]
 
-        for (const moduleId of Object.keys(chunk.modules)) {
-          const importerContents = contents[moduleId]
+        if (entryId && !loaded[entryId] && sources[entryId]) {
+          loaded[entryId] = true
 
-          if (importerContents) {
-            Object
-              .entries(importerContents)
-              .forEach(([id, content]) => {
-                this.emitFile({
-                  type: 'asset',
-                  fileName: `${chunk.name}.html`,
-                  source: content.code
-                })
-              })
-          }
+          bundleSources.push(
+            ...Object
+              .values(sources[entryId])
+              .map(source => ({ ...source, chunk, chunks }))
+          )
         }
-      }
+      })
+
+      return Promise.all(
+        bundleSources.map(source => emitFile.call(this, source, outputOptions))
+      )
     }
   }
 }

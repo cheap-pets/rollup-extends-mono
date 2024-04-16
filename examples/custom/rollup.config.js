@@ -5,6 +5,7 @@ import { generateRollupConfig } from '@cheap-pets/rollup-preset-core'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import postcss from 'rollup-plugin-postcss'
 import pluginHtml from '@cheap-pets/rollup-plugin-html'
 
 process.chdir(
@@ -34,7 +35,7 @@ const rollupConfig = generateRollupConfig({
     // 'src/index-a-x.js',
     // { app: 'src/index-a.js' },
     ['src/index-a-*.js', 'src/index-b.js'],
-  separateInputs: false,
+  separateInputs: true,
   plugins: [
     {
       plugin: 'delete',
@@ -49,6 +50,7 @@ const rollupConfig = generateRollupConfig({
       }
     ],
     'globImport',
+    [postcss, { extract: true }],
     pluginHtml,
     'compress',
     myPlugin
@@ -64,7 +66,7 @@ const rollupConfig = generateRollupConfig({
       entryFileNames (chunkInfo) {
         return chunkInfo.name === 'b'
           ? '[name].js'
-          : '[name].[hash].js'
+          : 'assets/[name].[hash].js'
       }
     },
     {
@@ -73,7 +75,7 @@ const rollupConfig = generateRollupConfig({
       entryFileNames (chunkInfo) {
         return chunkInfo.name === 'b'
           ? '[name].min.js'
-          : '[name].[hash].min.js'
+          : 'assets/[name].[hash].min.js'
       }
     }
   ],

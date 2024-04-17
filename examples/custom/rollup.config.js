@@ -1,7 +1,7 @@
 /* eslint-disable node/no-missing-import */
 /* eslint-disable node/no-unpublished-import */
 
-import { generateRollupConfig } from '@cheap-pets/rollup-preset-core'
+import { generateRollupConfig } from '@cheap-pets/rollup-config'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -51,7 +51,7 @@ const rollupConfig = generateRollupConfig({
     ],
     'globImport',
     [postcss, { extract: true }],
-    pluginHtml,
+    [pluginHtml, { replacements: { 'src="1.js"': 'src="2.js"' } }],
     'compress',
     myPlugin
   ],

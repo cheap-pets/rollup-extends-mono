@@ -1,7 +1,7 @@
 {
-  "name": "@cheap-pets/rollup-presets-mono",
+  "name": "@cheap-pets/rollups",
   "version": "1.0.0",
-  "description": "适用于团队项目的一些 Rollup 打包配置",
+  "description": "Tools, plugins, and preset configs for Rollup",
   "type": "module",
   "engines": {
     "node": ">=18"

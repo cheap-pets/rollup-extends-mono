@@ -1,7 +1,7 @@
 {
   "name": "@cheap-pets/rollup-plugin-html",
   "version": "1.0.0",
-  "description": "用于 Rollup 的 HTML 文件转换插件。",
+  "description": "Import & transform HTML modules",
   "engines": {
     "node": ">=18"
   },
@@ -14,7 +14,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@cheap-pets/rollup-preset-core": "workspace:^1.0",
+    "@cheap-pets/rollup-config": "workspace:^1.0",
     "@rollup/pluginutils": "^5.1.0",
     "cheerio": "^1.0.0-rc.12",
     "ejs": "^3.1.9",

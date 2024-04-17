@@ -14,6 +14,6 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@cheap-pets/rollup-preset-core": "workspace:^1.0"
+    "@cheap-pets/rollup-config": "workspace:^1.0"
   }
 }

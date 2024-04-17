@@ -1,5 +1,5 @@
 {
-  "name": "@cheap-pets/rollup-preset-core",
+  "name": "@cheap-pets/rollup-config",
   "version": "1.0.0",
   "description": "Rollup 打包配置生成工具基础库",
   "engines": {
@@ -23,6 +23,7 @@
     "colorette": "^2.0.20",
     "fs-extra": "^11.2.0",
     "glob": "^10.3.10",
+    "magic-string": "^0.30.9",
     "nanoid": "^5.0.7",
     "yargs": "^17.7.2",
     "@rollup/pluginutils": "^5.1.0",

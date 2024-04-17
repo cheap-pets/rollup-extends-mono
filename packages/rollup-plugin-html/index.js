@@ -2,39 +2,53 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 
 import { readFile } from 'node:fs/promises'
-import { utils } from '@cheap-pets/rollup-preset-core'
+import { utils } from '@cheap-pets/rollup-config'
 
-const { resolveOutputPath } = utils.path
-const { idMatcherBuild } = utils.id
-const { isFunction } = utils.type
+const { isFunction, buildIdMatcher, buildCodeReplacer } = utils
 
 const pluginAction = 'HTM'
 
+function buildReplacer (options) {
+  return options.replacements && buildCodeReplacer({
+    delimiters: ['', ''],
+    objectGuards: false,
+    preventAssignment: true,
+    ...options
+  })
+}
+
 function plugin (pluginOptions = {}) {
   const {
-    fileName: oFileName,
+    fileNames,
+    replacements,
+    replaceOptions,
     extensions = ['.htm', '.html']
   } = pluginOptions
 
-  const matchId = idMatcherBuild(extensions)
+  const idMatcher = buildIdMatcher(extensions)
+  const replacer = buildReplacer({ replacements, ...replaceOptions })
 
   let codes, sources, loaded
 
   function transform (code, fileName, chunk, chunks) {
-
+    return replacer?.(code) || code
   }
 
   async function emitFile (sourceOption, outputOptions) {
     const { id, chunk, chunks, queries = {} } = sourceOption
 
-    const fileName = (
-      isFunction(oFileName)
-        ? oFileName({ id, queries, chunk })
-        : oFileName || queries.fileName
-    )?.replaceAll('[chunkName]', chunk.name) || `${chunk.name}.html`
+    const fileName =
+      (
+        queries.fileName ||
+        (
+          isFunction(fileNames)
+            ? fileNames({ id, queries, chunk })
+            : fileNames
+        )
+      )?.replaceAll('[name]', chunk.name) || `${chunk.name}.html`
 
     const code = (codes[id] ??= (await readFile(id)).toString())
-    const source = transform(code, fileName, chunk, chunks)
+    const source = transform.call(this, code, fileName, chunk, chunks)
 
     this.emitFile({
       type: 'asset',
@@ -53,7 +67,7 @@ function plugin (pluginOptions = {}) {
     },
 
     async resolveId (source, importer) {
-      const matched = matchId(source)
+      const matched = idMatcher(source)
 
       return matched
         ? (await this.resolve(matched.id, importer)).id + (matched.query || '')
@@ -61,7 +75,7 @@ function plugin (pluginOptions = {}) {
     },
 
     async load (id) {
-      const matched = matchId(id, true)
+      const matched = idMatcher(id, true)
 
       if (!matched) return null
 

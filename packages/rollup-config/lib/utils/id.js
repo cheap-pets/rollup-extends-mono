@@ -9,7 +9,7 @@ export function parseQueries (query) {
   )
 }
 
-export function idMatcherBuild (extensions = []) {
+export function buildIdMatcher (extensions = []) {
   const extensionsPattern = extensions
     .filter(el => el[0] === '.')
     .map(el => el.substr(1))

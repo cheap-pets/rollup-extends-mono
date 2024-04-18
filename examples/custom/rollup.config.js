@@ -51,7 +51,7 @@ const rollupConfig = generateRollupConfig({
     ],
     'globImport',
     [postcss, { extract: true }],
-    [pluginHtml, { replacements: { 'src="1.js"': 'src="2.js"' } }],
+    [pluginHtml, { replacements: { '{{ title }}': '这是标题' } }],
     'compress',
     myPlugin
   ],

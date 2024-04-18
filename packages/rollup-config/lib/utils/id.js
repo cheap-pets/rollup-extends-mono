@@ -4,6 +4,7 @@
 export function parseQueries (query) {
   return query && Object.fromEntries(
     query
+      .substr(1)
       .split('&')
       .map(el => [...el.split('='), true].slice(0, 2))
   )

@@ -84,7 +84,7 @@ export function buildCodeReplacer (options) {
     'g'
   )
 
-  return (code, from) => {
+  return (code, ctx) => {
     if (!pattern) return code
 
     const magicString = new MagicString(code)
@@ -97,7 +97,7 @@ export function buildCodeReplacer (options) {
 
       const start = matched.index
       const end = start + matched[0].length
-      const replacement = String(functions[matched[1]](matched[0], from))
+      const replacement = String(functions[matched[1]](matched[0], ctx))
 
       magicString.overwrite(start, end, replacement)
     }

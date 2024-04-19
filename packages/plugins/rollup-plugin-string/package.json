@@ -1,0 +1,22 @@
+{
+  "name": "@cheap-pets/rollup-plugin-string",
+  "version": "1.0.0",
+  "description": "Transform file content as a default-exported string",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": false,
+  "peerDependencies": {
+    "rollup": "^4"
+  },
+  "dependencies": {
+    "@rollup/pluginutils": "^5.1.0"
+  }
+}

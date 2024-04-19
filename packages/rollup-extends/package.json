@@ -1,0 +1,26 @@
+{
+  "name": "@cheap-pets/rollup-extends",
+  "version": "1.0.0",
+  "description": "Useful utilities for configuring with Rollup",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": false,
+  "peerDependencies": {
+    "rollup": "^4"
+  },
+  "dependencies": {
+    "change-case": "^5.4.3",
+    "colorette": "^2.0.20",
+    "glob": "^10.3.10",
+    "magic-string": "^0.30.9",
+    "yargs": "^17.7.2"
+  }
+}

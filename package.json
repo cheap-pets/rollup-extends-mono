@@ -1,7 +1,7 @@
 {
-  "name": "@cheap-pets/rollups",
+  "name": "@cheap-pets/rollup-extends-mono",
   "version": "1.0.0",
-  "description": "Tools, plugins, and preset configs for Rollup",
+  "description": "Utilities, plugins, and preset configurations for Rollup",
   "type": "module",
   "engines": {
     "node": ">=18"

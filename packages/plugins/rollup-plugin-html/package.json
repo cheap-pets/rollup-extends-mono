@@ -1,0 +1,21 @@
+{
+  "name": "@cheap-pets/rollup-plugin-html",
+  "version": "1.0.0",
+  "description": "Import & transform HTML modules",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@cheap-pets/rollup-extends": "workspace:^1.0",
+    "fs-extra": "^11.2.0",
+    "js-beautify": "^1.15.1"
+  }
+}

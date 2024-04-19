@@ -1,12 +1,17 @@
 /* eslint-disable node/no-missing-import */
 /* eslint-disable node/no-unpublished-import */
 
-import { generateRollupConfig } from '@cheap-pets/rollup-config'
+import { generateRollupConfig } from '@cheap-pets/rollup-extends'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import postcss from 'rollup-plugin-postcss'
+import pluginCopy from '@cheap-pets/rollup-plugin-copy'
 import pluginHtml from '@cheap-pets/rollup-plugin-html'
+import pluginString from '@cheap-pets/rollup-plugin-string'
+import pluginDelete from '@cheap-pets/rollup-plugin-delete'
+import pluginCompress from '@cheap-pets/rollup-plugin-compress'
+import pluginGlobImport from '@cheap-pets/rollup-plugin-glob-import'
 
 process.chdir(
   dirname(fileURLToPath(import.meta.url))
@@ -30,7 +35,7 @@ function myPlugin (options = {}) {
 }
 
 const rollupConfig = generateRollupConfig({
-  logLevel: 'debug',
+  logLevel: 'info',
   input:
     // 'src/index-a-x.js',
     // { app: 'src/index-a.js' },
@@ -38,21 +43,21 @@ const rollupConfig = generateRollupConfig({
   separateInputs: true,
   plugins: [
     {
-      plugin: 'delete',
+      plugin: pluginDelete,
       option: { targets: ['dist/*'] }
     },
-    [
-      'copy',
-      {
-        targets: {
-          'src/assets': 'dist/assets'
-        }
-      }
-    ],
-    'globImport',
+    {
+      plugin: pluginCopy,
+      option: { targets: { 'src/assets': 'dist/assets' } }
+    },
+    {
+      plugin: pluginString,
+      option: { include: '**/*.txt' }
+    },
+    pluginGlobImport,
     [postcss, { extract: true }],
     [pluginHtml, { replacements: { '{{ title }}': '这是标题' } }],
-    'compress',
+    pluginCompress,
     myPlugin
   ],
   output: [

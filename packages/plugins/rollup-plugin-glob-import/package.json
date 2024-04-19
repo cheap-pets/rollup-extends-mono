@@ -1,0 +1,22 @@
+{
+  "name": "@cheap-pets/rollup-plugin-glob-import",
+  "version": "1.0.0",
+  "description": "Import & export multiple modules using glob pattern",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@cheap-pets/rollup-extends": "workspace:^1.0",
+    "change-case": "^5.4.3",
+    "glob": "^10.3.10",
+    "nanoid": "^5.0.7"
+  }
+}

@@ -13,8 +13,13 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "@cheap-pets/rollup-config": "workspace:^1.0",
+    "@cheap-pets/rollup-extends": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-compress": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-copy": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-delete": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-glob-import": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-html": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-string": "workspace:^1.0",
     "rollup": "^4.12.0",
     "rollup-plugin-postcss": "^4.0.2"
   }

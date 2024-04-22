@@ -1,9 +1,9 @@
 /* eslint-disable node/no-missing-import */
 /* eslint-disable node/no-unpublished-import */
 
-import { generateRollupConfig } from '@cheap-pets/rollup-extends'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { globToRollupConfig } from '@cheap-pets/rollup-extends'
 
 import postcss from 'rollup-plugin-postcss'
 import pluginCopy from '@cheap-pets/rollup-plugin-copy'
@@ -34,62 +34,56 @@ function myPlugin (options = {}) {
   }
 }
 
-const rollupConfig = generateRollupConfig({
-  logLevel: 'info',
-  input:
-    // 'src/index-a-x.js',
-    // { app: 'src/index-a.js' },
-    ['src/index-a-*.js', 'src/index-b.js'],
-  separateInputs: true,
-  plugins: [
-    {
-      plugin: pluginDelete,
-      option: { targets: ['dist/*'] }
-    },
-    {
-      plugin: pluginCopy,
-      option: { targets: { 'src/assets': 'dist/assets' } }
-    },
-    {
-      plugin: pluginString,
-      option: { include: '**/*.txt' }
-    },
-    pluginGlobImport,
-    [postcss, { extract: true }],
-    [pluginHtml, { replacements: { '{{ title }}': '这是标题' } }],
-    pluginCompress,
-    myPlugin
-  ],
-  output: [
-    {
-      // format: 'iife',
-      // name: 'app',
-      dir: 'dist',
-      hashCharacters: 'base36',
-      // hash: true
-      // entryFileNames: '[name].[hash].js'
-      entryFileNames (chunkInfo) {
-        return chunkInfo.name === 'b'
-          ? '[name].js'
-          : 'assets/[name].[hash].js'
+const config = globToRollupConfig({
+  'src/index-{a-*,b}.js': () => ({
+    logLevel: 'info',
+    plugins: [
+      {
+        plugin: pluginDelete,
+        option: { targets: ['dist/*'] }
+      },
+      {
+        plugin: pluginCopy,
+        option: { targets: { 'src/assets': 'dist/assets' } }
+      },
+      {
+        plugin: pluginString,
+        option: { include: '**/*.txt' }
+      },
+      pluginGlobImport,
+      [postcss, { extract: true }],
+      [pluginHtml, { replacements: { '{{ title }}': '这是标题' } }],
+      pluginCompress,
+      myPlugin
+    ],
+    output: [
+      {
+        // format: 'iife',
+        // name: 'app',
+        dir: 'dist',
+        hashCharacters: 'base36',
+        // hash: true
+        // entryFileNames: '[name].[hash].js'
+        entryFileNames (chunkInfo) {
+          return chunkInfo.name === 'b'
+            ? '[name].js'
+            : 'assets/[name].[hash].js'
+        }
+      },
+      {
+        dir: 'dist',
+        hashCharacters: 'base36',
+        entryFileNames (chunkInfo) {
+          return chunkInfo.name === 'b'
+            ? '[name].min.js'
+            : 'assets/[name].[hash].min.js'
+        }
       }
-    },
-    {
-      dir: 'dist',
-      hashCharacters: 'base36',
-      entryFileNames (chunkInfo) {
-        return chunkInfo.name === 'b'
-          ? '[name].min.js'
-          : 'assets/[name].[hash].min.js'
-      }
+    ],
+    onwarn (msg, defaultHandler) {
+      if (msg.code !== 'UNKNOWN_OPTION') defaultHandler(msg)
     }
-  ],
-  onwarn (msg, defaultHandler) {
-    if (msg.code !== 'UNKNOWN_OPTION') defaultHandler(msg)
-  }
+  })
 })
 
-// console.log(rollupConfig)
-// console.log(process.argv)
-
-export default rollupConfig
+export default config

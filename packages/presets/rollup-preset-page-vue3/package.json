@@ -1,0 +1,25 @@
+{
+  "name": "@cheap-pets/rollup-preset-vue3",
+  "version": "1.0.0",
+  "description": "Bundling configurations for Vue 3.x",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@cheap-pets/rollup-extends": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-html": "workspace:^1.0",
+    "@rollup/plugin-swc": "^0.3.0",
+    "@swc/core": "^1.4.16",
+    "unplugin-vue": "^5.0.5",
+    "vite": "^5.2.10",
+    "vue": "^3.4.23"
+  }
+}

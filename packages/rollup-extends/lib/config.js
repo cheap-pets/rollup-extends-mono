@@ -1,11 +1,11 @@
 import yargs from 'yargs/yargs'
 
-import { parse, basename, dirname } from 'node:path'
-import { kebabCase } from 'change-case'
+import { parse, basename } from 'node:path'
+import { kebabCase, camelCase } from 'change-case'
 import { hideBin } from 'yargs/helpers'
 import { glob } from 'glob'
 
-import { isObject, isString } from './utils/type.js'
+import { isString, isObject, ensureFunction } from './utils/type.js'
 import { processPlugin } from './plugin.js'
 import { onLog } from './utils/logger.js'
 
@@ -14,77 +14,86 @@ const include = argv.include?.split(',').map(el => kebabCase(el))
 const exclude = argv.exclude?.split(',').map(el => kebabCase(el))
 
 function parseModuleName (input) {
-  const filename = kebabCase(parse(input).name)
-  const inline = filename.startsWith('index-') && filename.substr(6)
+  const info = parse(input)
+  const name = kebabCase(info.name)
 
-  return inline || kebabCase(basename(dirname(input)))
+  return name === 'index'
+    ? kebabCase(basename(info.dir))
+    : (name.startsWith('index-') && name.substr(6)) || name
 }
 
-function getFilteredGlobFiles (input) {
-  const entries = glob
-    .sync(input)
-    .map(file => [parseModuleName(file), file])
-    .filter(el =>
-      (!include || include.includes(kebabCase(el[0]))) &&
-      (!exclude || !exclude.includes(kebabCase(el[0])))
-    )
+function globInputs (pattern) {
+  return glob
+    .sync(pattern)
+    .reduce((result, file) => {
+      const name = parseModuleName(file)
 
-  return Object.fromEntries(entries)
+      if (
+        (!include || include.includes(name)) &&
+        (!exclude || !exclude.includes(name))
+      ) {
+        result.push([name, file])
+      }
+
+      return result
+    }, [])
 }
 
-function processEntryConfig (options) {
-  const {
-    input: rawInput,
-    output: rawOutput,
-    plugins: rawPlugins,
-    separateInputs,
-    ...config
-  } = options
+function resolveOutputConfig (rawConfig, defaultName) {
+  const { plugins, ...config } = rawConfig
 
-  function buildOutputConfig (output) {
-    const { plugins, ...outputConfig } = output
-
-    if (plugins) {
-      outputConfig.plugins = plugins.map(plugin => processPlugin(plugin, true))
-    }
-
-    return outputConfig
+  if (plugins) {
+    config.plugins = plugins.map(el => processPlugin(el, true))
   }
 
-  function buildConfig (input) {
-    return {
-      onLog,
+  if (defaultName && !config.name && ['iife', 'umd'].includes(config.format)) {
+    config.name = defaultName
+  }
+
+  return config
+}
+
+export function resolveRollupConfig (rawConfig) {
+  if (Array.isArray(rawConfig)) {
+    return rawConfig.map(el => resolveRollupConfig(el))
+  }
+
+  const { input, output, outputName, plugins, ...config } = rawConfig
+
+  const isGlobEntries = Array.isArray(input) || (isString(input) && input.includes('*'))
+  const isSingleEntry = isString(input) || !input.includes('*')
+  const defaultName = isSingleEntry && outputName
+
+  config.input = isGlobEntries
+    ? Object.fromEntries(globInputs(input))
+    : input
+
+  config.output = Array.isArray(output)
+    ? output.map(el => resolveOutputConfig(el, defaultName))
+    : resolveOutputConfig(output, defaultName)
+
+  config.plugins = plugins?.map(el => processPlugin(el))
+  config.onLog ??= onLog
+
+  return config
+}
+
+export function globToRollupConfig (patternOrCombined, configHandler) {
+  const isCombinedOption = isObject(patternOrCombined)
+
+  if (isCombinedOption) {
+    return Object
+      .entries(patternOrCombined)
+      .map(el => globToRollupConfig(...el))
+      .flat()
+  }
+
+  const getRawConfig = ensureFunction(configHandler)
+
+  return globInputs(patternOrCombined)
+    .map(([name, input]) => resolveRollupConfig({
       input,
-      plugins: rawPlugins?.map(el => processPlugin(el)),
-      output:
-        Array.isArray(rawOutput)
-          ? rawOutput.map(el => buildOutputConfig(el))
-          : buildOutputConfig(rawOutput),
-      ...config
-    }
-  }
-
-  const input = rawOutput.file || isObject(rawInput)
-    ? config.input
-    : isString(rawInput) && !rawInput.includes('*')
-      ? rawInput
-      : getFilteredGlobFiles(rawInput)
-
-  return separateInputs && isObject(input)
-    ? Object.entries(input).map(([key, value]) => buildConfig({ [key]: value }))
-    : buildConfig(input)
-}
-
-export function generateRollupConfig (options) {
-  return Array.isArray(options)
-    ? options.map(el => processEntryConfig(el)).flat()
-    : processEntryConfig(options)
-}
-
-export function globToArrayedConfig (pattern, config) {
-  if (isObject(pattern)) {
-
-  } else {
-    
-  }
+      outputName: camelCase(name),
+      ...getRawConfig(input)
+    }))
 }

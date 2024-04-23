@@ -3,9 +3,9 @@
 
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { globToRollupConfig } from '@cheap-pets/rollup-extends'
+import { globToRollupConfig, createPreset } from '@cheap-pets/rollup-extends'
 
-import postcss from 'rollup-plugin-postcss'
+import pluginPostcss from 'rollup-plugin-postcss'
 import pluginCopy from '@cheap-pets/rollup-plugin-copy'
 import pluginHtml from '@cheap-pets/rollup-plugin-html'
 import pluginString from '@cheap-pets/rollup-plugin-string'
@@ -34,56 +34,85 @@ function myPlugin (options = {}) {
   }
 }
 
-const config = globToRollupConfig({
-  'src/index-{a-*,b}.js': () => ({
-    logLevel: 'info',
-    plugins: [
-      {
-        plugin: pluginDelete,
-        option: { targets: ['dist/*'] }
-      },
-      {
-        plugin: pluginCopy,
-        option: { targets: { 'src/assets': 'dist/assets' } }
-      },
-      {
-        plugin: pluginString,
-        option: { include: '**/*.txt' }
-      },
-      pluginGlobImport,
-      [postcss, { extract: true }],
-      [pluginHtml, { replacements: { '{{ title }}': '这是标题' } }],
-      pluginCompress,
-      myPlugin
-    ],
-    output: [
-      {
-        // format: 'iife',
-        // name: 'app',
-        dir: 'dist',
-        hashCharacters: 'base36',
-        // hash: true
-        // entryFileNames: '[name].[hash].js'
-        entryFileNames (chunkInfo) {
-          return chunkInfo.name === 'b'
-            ? '[name].js'
-            : 'assets/[name].[hash].js'
-        }
-      },
-      {
-        dir: 'dist',
-        hashCharacters: 'base36',
-        entryFileNames (chunkInfo) {
-          return chunkInfo.name === 'b'
-            ? '[name].min.js'
-            : 'assets/[name].[hash].min.js'
-        }
-      }
-    ],
-    onwarn (msg, defaultHandler) {
-      if (msg.code !== 'UNKNOWN_OPTION') defaultHandler(msg)
+const preset = createPreset({
+  logLevel: 'info',
+  plugins: [
+    {
+      name: 'delete',
+      plugin: pluginDelete,
+      option: { targets: ['dist/*'] }
+    },
+    {
+      name: 'copy',
+      plugin: pluginCopy,
+      option: { targets: { 'src/assets': 'dist/assets' } }
+    },
+    {
+      name: 'string',
+      plugin: pluginString,
+      option: { include: '**/*.txt' }
+    },
+    {
+      name: 'globImport',
+      plugin: pluginGlobImport
+    },
+    {
+      name: 'postcss',
+      plugin: pluginPostcss,
+      option: { extract: true }
+    },
+    {
+      name: 'html',
+      plugin: pluginHtml,
+      option: { replacements: { '{{ title }}': '这是标题' } }
+    },
+    {
+      name: 'compress',
+      plugin: pluginCompress
+    },
+    {
+      name: 'myPlugin',
+      plugin: myPlugin
     }
-  })
+  ],
+  output: {
+    dir: 'dist',
+    hashCharacters: 'base36',
+    entryFileNames: 'assets/[name].[hash].js'
+  },
+  /*
+  output: [
+    {
+      // format: 'iife',
+      // name: 'app',
+      dir: 'dist',
+      hashCharacters: 'base36',
+      // hash: true
+      // entryFileNames: '[name].[hash].js'
+      entryFileNames (chunkInfo) {
+        return chunkInfo.name === 'b'
+          ? '[name].js'
+          : 'assets/[name].[hash].js'
+      }
+    },
+    {
+      dir: 'dist',
+      hashCharacters: 'base36',
+      entryFileNames (chunkInfo) {
+        return chunkInfo.name === 'b'
+          ? '[name].min.js'
+          : 'assets/[name].[hash].min.js'
+      }
+    }
+  ],
+  */
+  onwarn (msg, defaultHandler) {
+    if (msg.code !== 'UNKNOWN_OPTION') defaultHandler(msg)
+  }
+})
+
+const config = globToRollupConfig({
+  'src/index-{a-*,b}.js': preset.config()
 })
 
 export default config

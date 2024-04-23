@@ -6,8 +6,7 @@ import { hideBin } from 'yargs/helpers'
 import { glob } from 'glob'
 
 import { isString, isObject, ensureFunction } from './utils/type.js'
-import { processPlugin } from './plugin.js'
-import { onLog } from './utils/logger.js'
+import { onLog } from './logger.js'
 
 const argv = yargs(hideBin(process.argv)).argv
 const include = argv.include?.split(',').map(el => kebabCase(el))
@@ -40,11 +39,11 @@ function globInputs (pattern) {
 }
 
 function resolveOutputConfig (rawConfig, defaultName) {
-  const { plugins, ...config } = rawConfig
+  const { /* plugins, */ ...config } = rawConfig
 
-  if (plugins) {
-    config.plugins = plugins.map(el => processPlugin(el, true))
-  }
+  // if (plugins) {
+  //   config.plugins = plugins.map(el => processPlugin(el, true))
+  // }
 
   if (defaultName && !config.name && ['iife', 'umd'].includes(config.format)) {
     config.name = defaultName
@@ -58,7 +57,7 @@ export function resolveRollupConfig (rawConfig) {
     return rawConfig.map(el => resolveRollupConfig(el))
   }
 
-  const { input, output, outputName, plugins, ...config } = rawConfig
+  const { input, output, outputName, /* plugins, */ ...config } = rawConfig
 
   const isGlobEntries = Array.isArray(input) || (isString(input) && input.includes('*'))
   const isSingleEntry = isString(input) || !input.includes('*')
@@ -72,7 +71,7 @@ export function resolveRollupConfig (rawConfig) {
     ? output.map(el => resolveOutputConfig(el, defaultName))
     : resolveOutputConfig(output, defaultName)
 
-  config.plugins = plugins?.map(el => processPlugin(el))
+  // config.plugins = plugins?.map(el => processPlugin(el))
   config.onLog ??= onLog
 
   return config
@@ -94,6 +93,6 @@ export function globToRollupConfig (patternOrCombined, configHandler) {
     .map(([name, input]) => resolveRollupConfig({
       input,
       outputName: camelCase(name),
-      ...getRawConfig(input)
+      ...getRawConfig({ input })
     }))
 }

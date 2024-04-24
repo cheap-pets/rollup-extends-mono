@@ -1,9 +1,9 @@
 /* eslint-disable security/detect-object-injection */
 
-import { resolvePresetPlugins, resolveRollupPlugins } from './resolve-plugins.js'
+import { transformToPresetPlugins, transformToRollupPlugins } from './transform-plugins.js'
 import { isObject } from '../utils/type.js'
 
-export function resolvePresetOptions (incomingOptions) {
+export function transformToPresetOptions (incomingOptions) {
   const preset = { plugins: {} }
 
   function resolveOutput (outputOptions = {}) {
@@ -11,19 +11,19 @@ export function resolvePresetOptions (incomingOptions) {
       ? outputOptions.map(el => resolveOutput(el))
       : {
           ...outputOptions,
-          plugins: resolvePresetPlugins(preset, outputOptions.plugins, 'output')
+          plugins: transformToPresetPlugins(preset, outputOptions.plugins, 'output')
         }
   }
 
   const { plugins, output, ...options } = incomingOptions
 
-  options.plugins = resolvePresetPlugins(preset, plugins)
+  options.plugins = transformToPresetPlugins(preset, plugins)
   options.output = resolveOutput(output)
 
   return Object.assign(preset, { options })
 }
 
-export function resolveRollupOptions (preset, incomingOptions = {}) {
+export function transformToRollupOptions (preset, incomingOptions = {}) {
   const { output: oldOutput, plugins: oldPlugins, ...oldOptions } = preset.options
   const { output: newOutput, plugins: newPlugins, pluginsOptions, ...newOptions } = incomingOptions
 
@@ -32,11 +32,11 @@ export function resolveRollupOptions (preset, incomingOptions = {}) {
       ? outputOptions.map(el => resolveOutput(el))
       : {
           ...outputOptions,
-          plugins: resolveRollupPlugins(preset, outputOptions.plugins, pluginsOptions, 'output')
+          plugins: transformToRollupPlugins(preset, outputOptions.plugins, pluginsOptions, 'output')
         }
   }
 
-  const plugins = resolveRollupPlugins(
+  const plugins = transformToRollupPlugins(
     preset,
     newPlugins || oldPlugins,
     pluginsOptions
@@ -51,10 +51,10 @@ export function resolveRollupOptions (preset, incomingOptions = {}) {
   return Object.assign(oldOptions, newOptions, { plugins, output })
 }
 
-export function resolveUpdateOptions (preset, incomingOptions) {
+export function transformToUpdateOptions (preset, incomingOptions) {
 
 }
 
-export function resolveExportOptions (preset) {
+export function transformToExportOptions (preset) {
 
 }

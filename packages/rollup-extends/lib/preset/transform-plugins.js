@@ -9,7 +9,7 @@ function isPluginDescriptor (v) {
   )
 }
 
-export function resolvePresetPlugins (
+export function transformToPresetPlugins (
   preset,
   plugins,
   defaultTag = 'default'
@@ -48,7 +48,7 @@ export function resolvePresetPlugins (
   })
 }
 
-export function resolveRollupPlugins (
+export function transformToRollupPlugins (
   preset,
   plugins,
   pluginsOptions = {},

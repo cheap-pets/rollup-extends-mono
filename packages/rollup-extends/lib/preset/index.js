@@ -1,16 +1,16 @@
 import {
-  resolvePresetOptions,
-  resolveRollupOptions,
-  resolveUpdateOptions,
-  resolveExportOptions
-} from './resolve-options.js'
+  transformToPresetOptions,
+  transformToRollupOptions,
+  transformToUpdateOptions,
+  transformToExportOptions
+} from './transform-options.js'
 
 export function createPreset (presetOptions = {}) {
-  const preset = resolvePresetOptions(presetOptions)
+  const preset = transformToPresetOptions(presetOptions)
 
-  preset.config = options => resolveRollupOptions(preset, options)
-  preset.update = options => resolveUpdateOptions(preset, options)
-  preset.export = () => resolveExportOptions(preset)
+  preset.config = options => transformToRollupOptions(preset, options)
+  preset.update = options => transformToUpdateOptions(preset, options)
+  preset.export = () => transformToExportOptions(preset)
 
   return preset
 }

@@ -4,7 +4,7 @@ import {
   resolveUpdatePlugins,
   createPluginsProxy,
   createOutputPluginsProxy
-} from './preset-plugins.js'
+} from './preset-plugin.js'
 
 function resolveOptions (options) {
   const {
@@ -72,6 +72,9 @@ function resolvePresetOptions (options) {
 export function createPreset (options = {}) {
   const preset = resolvePresetOptions(options)
 
+  function exportOptions () {
+  }
+
   function config (configOptions) {
     const incoming = resolveOptions(options)
 
@@ -119,14 +122,11 @@ export function createPreset (options = {}) {
     })
   }
 
-  function exportOptions () {
-  }
-
   return {
     plugins: createPluginsProxy(preset),
     outputPlugins: createOutputPluginsProxy(preset),
+    export: exportOptions,
     config,
-    update,
-    exportOptions
+    update
   }
 }

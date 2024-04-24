@@ -16,7 +16,8 @@ function isObject (value) {
 }
 
 function isFunction (value) {
-  return ['function', 'asyncfunction', 'generatorfunction'].includes(typeOf(value))
+  // function, asyncfunction, generatorfunction
+  return typeOf(value).includes('function')
 }
 
 function ensureFunction (value) {

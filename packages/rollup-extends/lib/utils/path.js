@@ -22,3 +22,13 @@ export function changeExtension (filePath, newExtension) {
 
   return join(dir, `${name}${newExtension}`)
 }
+
+export function resolveEmitFileName (fileName, replacements = {}) {
+  return Object
+    .entries(replacements)
+    .reduce(
+      (result, [key, value = '']) => result.replaceAll(`[${key}]`, value),
+      fileName
+    )
+    .replace(/\.{2,}/g, '.')
+}

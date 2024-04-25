@@ -1,16 +1,14 @@
-import {
-  transformToPresetOptions,
-  transformToRollupOptions,
-  transformToUpdateOptions,
-  transformToExportOptions
-} from './transform-options.js'
+import { transformPresetOptions } from './transform-preset.js'
+import { transformRollupOptions } from './transform-rollup.js'
+import { transformUpdateOptions } from './transform-update.js'
+import { transformExportOptions } from './transform-export.js'
 
 export function createPreset (presetOptions = {}) {
-  const preset = transformToPresetOptions(presetOptions)
+  const preset = transformPresetOptions(presetOptions)
 
-  preset.config = options => transformToRollupOptions(preset, options)
-  preset.update = options => transformToUpdateOptions(preset, options)
-  preset.export = () => transformToExportOptions(preset)
+  preset.config = options => transformRollupOptions(preset, options)
+  preset.update = options => transformUpdateOptions(preset, options)
+  preset.export = options => transformExportOptions(preset, options)
 
   return preset
 }

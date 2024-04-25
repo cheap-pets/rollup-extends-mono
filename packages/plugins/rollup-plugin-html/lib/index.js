@@ -6,13 +6,18 @@ import { readFile } from 'node:fs/promises'
 import { utils } from '@cheap-pets/rollup-extends'
 import { generateHTML, formatHTML, extractInjectableFiles, createHtmlReplacer } from './html.js'
 
-const { isFunction, createIdMatcher, resolveOutputDir, relativeFromCwd } = utils
+const {
+  ensureFunction,
+  createIdMatcher,
+  resolveOutputDir,
+  relativeFromCwd,
+  resolveEmitFileName
+} = utils
 
 const pluginAction = 'HTM'
 
 export default function plugin (pluginOptions = {}) {
   const {
-    fileNames,
     replacements,
     // replaceOptions,
     format,
@@ -24,21 +29,31 @@ export default function plugin (pluginOptions = {}) {
 
   let codes, sources, loaded
 
-  async function emitFile (sourceOption) {
-    const { id, outputDir, chunk, queries = {}, scripts, links } = sourceOption
+  async function emitFile (sourceOption, outputOptions) {
+    const { id, chunk, queries = {}, scripts, links } = sourceOption
+
+    const template = (codes[id] ??= (await readFile(id)).toString())
+    const assetFileNames = ensureFunction(outputOptions.assetFileNames || '[name].[ext]')
+
+    const assetInfo = {
+      type: 'asset',
+      name: `${chunk.name}.html`,
+      source: template
+    }
 
     const fileName =
-      (
-        queries.fileName ||
-        (
-          isFunction(fileNames)
-            ? fileNames({ id, queries, chunk })
-            : fileNames
-        )
-      )?.replaceAll('[name]', chunk.name) || `${chunk.name}.html`
+      resolveEmitFileName(
+        queries.fileName || (assetFileNames(assetInfo)),
+        {
+          name: chunk.name,
+          hash: '',
+          ext: 'html',
+          extname: '.html',
+          format: outputOptions.format !== 'iife' && outputOptions.format
+        }
+      ) || assetInfo.name
 
     const title = queries.title
-    const template = (codes[id] ??= (await readFile(id)).toString())
     const html = generateHTML({ title, template, fileName, scripts, links })
 
     this.emitFile({
@@ -47,6 +62,7 @@ export default function plugin (pluginOptions = {}) {
       source: formatHTML(replacer?.(html) || html, format)
     })
 
+    const outputDir = resolveOutputDir(outputOptions)
     const displayName = relativeFromCwd(resolve(outputDir, fileName))
 
     this.info({
@@ -91,8 +107,6 @@ export default function plugin (pluginOptions = {}) {
     },
 
     generateBundle (outputOptions, bundle) {
-      const outputDir = resolveOutputDir(outputOptions)
-
       const chunks = Object.values(bundle)
       const chunkFiles = chunks.map(el => el.fileName)
       const injectableFiles = extractInjectableFiles(chunkFiles, outputOptions.format)
@@ -108,13 +122,13 @@ export default function plugin (pluginOptions = {}) {
           bundleSources.push(
             ...Object
               .values(sources[entryId])
-              .map(source => ({ outputDir, chunk, ...source, ...injectableFiles }))
+              .map(source => ({ chunk, ...source, ...injectableFiles }))
           )
         }
       })
 
       return Promise.all(
-        bundleSources.map(source => emitFile.call(this, source))
+        bundleSources.map(source => emitFile.call(this, source, outputOptions))
       )
     }
   }

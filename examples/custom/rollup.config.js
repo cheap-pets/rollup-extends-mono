@@ -76,36 +76,16 @@ const preset = createPreset({
     }
   ],
   output: {
+    // format: 'iife',
+    // name: 'app',
     dir: 'dist',
+    // file: 'dist/assets/[name].js',
     hashCharacters: 'base36',
-    entryFileNames: 'assets/[name].[hash].js'
+    // hash: true
+    entryFileNames: 'assets/[name].[hash].js',
+    chunkFileNames: 'assets/[name].[hash].[ext]',
+    assetFileNames: '[name].[ext]'
   },
-  /*
-  output: [
-    {
-      // format: 'iife',
-      // name: 'app',
-      dir: 'dist',
-      hashCharacters: 'base36',
-      // hash: true
-      // entryFileNames: '[name].[hash].js'
-      entryFileNames (chunkInfo) {
-        return chunkInfo.name === 'b'
-          ? '[name].js'
-          : 'assets/[name].[hash].js'
-      }
-    },
-    {
-      dir: 'dist',
-      hashCharacters: 'base36',
-      entryFileNames (chunkInfo) {
-        return chunkInfo.name === 'b'
-          ? '[name].min.js'
-          : 'assets/[name].[hash].min.js'
-      }
-    }
-  ],
-  */
   onwarn (msg, defaultHandler) {
     if (msg.code !== 'UNKNOWN_OPTION') defaultHandler(msg)
   }

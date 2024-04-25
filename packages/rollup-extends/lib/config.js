@@ -38,38 +38,44 @@ function globInputs (pattern) {
     }, [])
 }
 
-function resolveOutputConfig (rawConfig, defaultName) {
-  const { /* plugins, */ ...config } = rawConfig
+function resolveOutputConfig (config, outputOptions, singleEntryName) {
+  const { ...output } = outputOptions
 
-  // if (plugins) {
-  //   config.plugins = plugins.map(el => processPlugin(el, true))
-  // }
+  if (singleEntryName) {
+    const name = camelCase(singleEntryName)
 
-  if (defaultName && !config.name && ['iife', 'umd'].includes(config.format)) {
-    config.name = defaultName
+    if (!output.name && ['iife', 'umd'].includes(output.format)) {
+      output.name = name
+    }
+
+    if (output.file) {
+      output.file = output.file.replaceAll('[name]', singleEntryName)
+    } else if (output.dir && !isObject(output.input)) {
+      config.input = { [singleEntryName]: config.input }
+    }
   }
 
-  return config
+  return output
 }
 
-export function resolveRollupConfig (rawConfig) {
-  if (Array.isArray(rawConfig)) {
-    return rawConfig.map(el => resolveRollupConfig(el))
+export function resolveRollupConfig (options) {
+  if (Array.isArray(options)) {
+    return options.map(el => resolveRollupConfig(el))
   }
 
-  const { input, output, outputName, /* plugins, */ ...config } = rawConfig
+  const { input, output, name, /* plugins, */ ...config } = options
 
   const isGlobEntries = Array.isArray(input) || (isString(input) && input.includes('*'))
   const isSingleEntry = isString(input) || !input.includes('*')
-  const defaultName = isSingleEntry && outputName
+  const singleEntryName = isSingleEntry && name
 
   config.input = isGlobEntries
     ? Object.fromEntries(globInputs(input))
     : input
 
   config.output = Array.isArray(output)
-    ? output.map(el => resolveOutputConfig(el, defaultName))
-    : resolveOutputConfig(output, defaultName)
+    ? output.map(el => resolveOutputConfig(config, el, singleEntryName))
+    : resolveOutputConfig(config, output, singleEntryName)
 
   // config.plugins = plugins?.map(el => processPlugin(el))
   config.onLog ??= onLog
@@ -77,22 +83,21 @@ export function resolveRollupConfig (rawConfig) {
   return config
 }
 
-export function globToRollupConfig (patternOrCombined, configHandler) {
-  const isCombinedOption = isObject(patternOrCombined)
+export function globToRollupConfig (input, configHandler) {
+  const isCombinedOption = isObject(input)
 
   if (isCombinedOption) {
     return Object
-      .entries(patternOrCombined)
+      .entries(input)
       .map(el => globToRollupConfig(...el))
       .flat()
   }
 
-  const getRawConfig = ensureFunction(configHandler)
+  const getConfig = ensureFunction(configHandler)
 
-  return globInputs(patternOrCombined)
-    .map(([name, input]) => resolveRollupConfig({
-      input,
-      outputName: camelCase(name),
-      ...getRawConfig({ input })
-    }))
+  return globInputs(input)
+    .map(
+      ([name, input]) =>
+        resolveRollupConfig({ input, name, ...getConfig({ input }) })
+    )
 }

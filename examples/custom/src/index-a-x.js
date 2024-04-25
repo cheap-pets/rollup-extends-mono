@@ -1,6 +1,5 @@
-// import { helloWorldB } from './index-b'
+import './template/index.html?title=a&fileName1=[name]-a.html'
 
-import './import-html.js'
 import './styles/index.css'
 
 import helloWorld from './1.txt'

@@ -65,9 +65,9 @@ export function resolveRollupConfig (options) {
 
   const { input, output, name, /* plugins, */ ...config } = options
 
-  const isGlobEntries = Array.isArray(input) || (isString(input) && input.includes('*'))
-  const isSingleEntry = isString(input) || !input.includes('*')
-  const singleEntryName = isSingleEntry && name
+  const isStringInput = isString(input)
+  const isGlobEntries = Array.isArray(input) || (isStringInput && /[*?|]/.test(input))
+  const singleEntryName = isStringInput && !isGlobEntries && name
 
   config.input = isGlobEntries
     ? Object.fromEntries(globInputs(input))

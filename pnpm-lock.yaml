@@ -52,6 +52,9 @@ importers:
       '@cheap-pets/rollup-extends':
         specifier: workspace:^1.0
         version: link:../../rollup-extends
+      rollup:
+        specifier: ^2.76.0||^3.0.0||^4.0.0
+        version: 4.16.2
 
   packages/plugins/rollup-plugin-copy:
     dependencies:
@@ -64,6 +67,9 @@ importers:
       glob:
         specifier: ^10.3.10
         version: 10.3.12
+      rollup:
+        specifier: ^2.76.0||^3.0.0||^4.0.0
+        version: 4.16.2
 
   packages/plugins/rollup-plugin-delete:
     dependencies:
@@ -76,6 +82,9 @@ importers:
       glob:
         specifier: ^10.3.10
         version: 10.3.12
+      rollup:
+        specifier: ^2.76.0||^3.0.0||^4.0.0
+        version: 4.16.2
 
   packages/plugins/rollup-plugin-glob-import:
     dependencies:
@@ -91,6 +100,9 @@ importers:
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
+      rollup:
+        specifier: ^2.76.0||^3.0.0||^4.0.0
+        version: 4.16.2
 
   packages/plugins/rollup-plugin-html:
     dependencies:
@@ -103,6 +115,24 @@ importers:
       js-beautify:
         specifier: ^1.15.1
         version: 1.15.1
+      rollup:
+        specifier: ^2.76.0||^3.0.0||^4.0.0
+        version: 4.16.2
+
+  packages/plugins/rollup-plugin-postcss:
+    dependencies:
+      '@cheap-pets/rollup-extends':
+        specifier: workspace:^1.0
+        version: link:../../rollup-extends
+      '@rollup/pluginutils':
+        specifier: ^5.1.0
+        version: 5.1.0(rollup@4.16.2)
+      js-beautify:
+        specifier: ^1.15.1
+        version: 1.15.1
+      rollup:
+        specifier: ^2.76.0||^3.0.0||^4.0.0
+        version: 4.16.2
 
   packages/plugins/rollup-plugin-string:
     dependencies:
@@ -110,7 +140,7 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0(rollup@4.16.2)
       rollup:
-        specifier: ^4
+        specifier: ^2.76.0||^3.0.0||^4.0.0
         version: 4.16.2
 
   packages/presets/rollup-preset-node:
@@ -215,7 +245,7 @@ importers:
         specifier: ^0.30.9
         version: 0.30.10
       rollup:
-        specifier: ^4
+        specifier: ^2.76.0||^3.0.0||^4.0.0
         version: 4.16.2
       yargs:
         specifier: ^17.7.2

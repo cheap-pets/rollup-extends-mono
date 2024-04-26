@@ -1,3 +1,10 @@
+function defaults (value, defaultValue) {
+  // eslint-disable-next-line no-void
+  return value === (void 0)
+    ? defaultValue
+    : value
+}
+
 function typeOf (value) {
   return Object
     .prototype
@@ -27,6 +34,7 @@ function ensureFunction (value) {
 }
 
 export {
+  defaults,
   isString,
   isObject,
   isFunction,

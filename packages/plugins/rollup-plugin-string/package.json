@@ -14,7 +14,7 @@
   "license": "MIT",
   "private": false,
   "peerDependencies": {
-    "rollup": "^4"
+    "rollup": "^2.76.0||^3.0.0||^4.0.0"
   },
   "dependencies": {
     "@rollup/pluginutils": "^5.1.0"

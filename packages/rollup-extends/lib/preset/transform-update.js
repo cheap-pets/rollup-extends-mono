@@ -1,87 +1,149 @@
 /* eslint-disable security/detect-object-injection */
 
-import { isObject } from '../utils/type.js'
+import { defaults, isObject, isString } from '../utils/type.js'
+
+function resolvePluginDescriptor (v, defaultTag) {
+  const result = isString(v) ? { name: v } : { ...v }
+
+  if (isString(result.plugin)) {
+    result.name = result.plugin
+    delete result.plugin
+  }
+
+  if (!result.name) {
+    throw new Error('Invalid plugin name.')
+  }
+
+  if (!result.tag) {
+    result.tag = defaultTag
+  }
+
+  return result
+}
 
 function transformPlugins (
-  newPlugins,
-  newPluginsMap,
-  oldPluginsMap,
+  plugins,
+  pluginsMap,
+  previousMap,
   defaultTag = 'default'
 ) {
-  return newPlugins && newPlugins.map(el => {
-    const { name, plugin, option, tag = defaultTag } = isObject(el) ? el : { name: el }
+  return plugins && plugins.map(el => {
+    el = resolvePluginDescriptor(el, defaultTag)
 
-    if (!name) {
-      throw new Error('Invalid plugin name.')
-    }
+    const existing = plugins[el.name]
+    const previous = previousMap[el.name] || { options: {} }
 
-    const newExisting = newPluginsMap[name]
-    const oldExisting = oldPluginsMap[name] || { options: {} }
+    const option = defaults(el.option, previous.options[el.tag])
 
-    const getOption = () =>
-      option === undefined
-        ? oldExisting.options[tag]
-        : option
-
-    if (newExisting) {
-      if (plugin && plugin !== newExisting.plugin) {
+    if (existing) {
+      if (el.plugin && el.plugin !== existing.plugin) {
         throw new Error(
-          `A plugin named "${name}" already exists.`
+          `A plugin named "${el.name}" already exists.`
         )
       }
 
-      if (tag in newExisting.options) {
+      if (el.tag in existing.options) {
         throw new Error(
-          `Plugin "${name}" has an existing configuration tagged as "${tag}".`
+          `Plugin "${el.name}" has an existing configuration tagged as "${el.tag}".`
         )
       }
 
-      newExisting.options[tag] = getOption()
+      existing.options[el.tag] = option
     } else {
-      const newPlugin = plugin || oldExisting.plugin
+      const thePlugin = el.plugin || previous.plugin
 
-      if (!newPlugin) {
+      if (!thePlugin) {
         throw new Error('Invalid plugin definition.')
       }
 
-      newPluginsMap[name] = {
-        plugin: newPlugin,
-        options: { [tag]: getOption() }
+      pluginsMap[el.name] = {
+        plugin: thePlugin,
+        options: { [el.tag]: option }
       }
     }
 
-    return { plugin: name, tag }
+    return { plugin: el.name, tag: el.tag }
   })
 }
 
+function classifyPLuginOptions (options) {
+  const result = {}
+  const defaultOption = {}
+
+  if (isObject(options)) {
+    Object.entries(options).forEach(([key, value]) => {
+      const isTagKey = key.startsWith('#') && key.length > 1
+      const tag = isTagKey ? key.substr(1) : 'default'
+
+      if (isTagKey) result[tag] = value
+      else defaultOption[key] = value
+    })
+
+    if (Object.keys(defaultOption).length && !('default' in result)) {
+      result.default = defaultOption
+    }
+  } else {
+    result.default = options
+  }
+
+  return result
+}
+
+function updatePluginOptions (plugin, options) {
+  const classified = classifyPLuginOptions(options)
+
+  Object
+    .keys(plugin.options)
+    .forEach(key => {
+      if (key in classified) plugin.options[key] = classified[key]
+    })
+}
+
 export function transformUpdateOptions (preset, incomingOptions = {}) {
-  const { output: oldOutput } = preset.options
-  const { output: newOutput, plugins: newPlugins, pluginsOptions, ...newOptions } = incomingOptions
+  const { options, plugins: previousMap } = preset
+  const { plugins: oldPlugins, output: oldOutput } = options
+  const { plugins: newPlugins, output: newOutput, pluginsOptions = {}, ...newOptions } = incomingOptions
 
-  const oldPluginsMap = preset.plugins
-  const newPluginsMap = preset.plugins = {}
+  const pluginsMap = preset.plugins = {}
 
-  function resolveOutput (outputOptions = {}) {
-    return Array.isArray(outputOptions)
-      ? outputOptions.map(el => resolveOutput(el))
-      : {
-          ...outputOptions,
-          plugins: transformPlugins(outputOptions.plugins, newPluginsMap, oldPluginsMap, 'output')
-        }
-  }
-
-  Object.assign(preset.options, newOptions)
-
-  if (newPlugins) {
-    preset.plugins = {}
-    preset.options.plugins = transformPlugins(newPlugins, newPluginsMap, oldPluginsMap)
-  }
-
-  if (newOutput) {
-    preset.options.output = resolveOutput(
-      isObject(oldOutput) && isObject(newOutput)
-        ? { ...oldOutput, ...newOutput }
-        : newOutput || oldOutput
+  const resolvePlugins = (plugins, defaultTag) => (
+    transformPlugins(
+      plugins,
+      pluginsMap,
+      previousMap,
+      defaultTag
     )
-  }
+  )
+
+  const resolveOutput = (outputs = {}) => (
+    Array.isArray(outputs)
+      ? outputs.map(resolveOutput)
+      : {
+          ...outputs,
+          plugins: resolvePlugins(outputs.plugins, 'output')
+        }
+  )
+
+  const output = isObject(oldOutput) && isObject(newOutput)
+    ? Object.assign(oldOutput, newOutput)
+    : defaults(newOutput, oldOutput)
+
+  Object.assign(
+    options,
+    newOptions,
+    {
+      plugins: resolvePlugins(newPlugins || oldPlugins),
+      output: resolveOutput(output)
+    }
+  )
+
+  Object
+    .entries(pluginsOptions)
+    .forEach(([pluginName, pluginOptions]) => {
+      const plugin = pluginsMap[pluginName]
+
+      if (plugin && options !== undefined) {
+        updatePluginOptions(plugin, pluginOptions)
+      }
+    })
 }

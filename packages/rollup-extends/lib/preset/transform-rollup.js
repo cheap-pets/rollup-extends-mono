@@ -1,6 +1,6 @@
 /* eslint-disable security/detect-object-injection */
 
-import { isString, isObject, isFunction } from '../utils/type.js'
+import { defaults, isString, isObject, isFunction } from '../utils/type.js'
 
 function isPluginDescriptor (v) {
   return (
@@ -9,14 +9,9 @@ function isPluginDescriptor (v) {
   )
 }
 
-function transformPlugins (
-  preset,
-  plugins,
-  pluginsOptions = {},
-  defaultTag = 'default'
-) {
+function transformPlugins (plugins, pluginsMap, pluginsOptions, defaultTag = 'default') {
   function resolveFromString (v, tag = defaultTag) {
-    const matched = isString(v) && Object(preset.plugins[v])
+    const matched = isString(v) && Object(pluginsMap[v])
 
     if (!matched) return
 
@@ -62,35 +57,31 @@ function transformPlugins (
 
 export function transformRollupOptions (preset, incomingOptions = {}) {
   const { output: oldOutput, plugins: oldPlugins, ...oldOptions } = preset.options
-  const { output: newOutput, plugins: newPlugins, pluginsOptions, ...newOptions } = incomingOptions
+  const { output: newOutput, plugins: newPlugins, pluginsOptions = {}, ...newOptions } = incomingOptions
 
-  function resolveOutput (outputOptions = {}) {
-    return Array.isArray(outputOptions)
-      ? outputOptions.map(el => resolveOutput(el))
+  const resolvePlugins = (plugins, defaultTag) => (
+    transformPlugins(plugins, preset.plugins, pluginsOptions, defaultTag)
+  )
+
+  const resolveOutput = (outputs = {}) => (
+    Array.isArray(outputs)
+      ? outputs.map(resolveOutput)
       : {
-          ...outputOptions,
-          plugins: transformPlugins(preset, outputOptions.plugins, pluginsOptions, 'output')
+          ...outputs,
+          plugins: resolvePlugins(outputs.plugins, 'output')
         }
-  }
-
-  const plugins = transformPlugins(
-    preset,
-    newPlugins || oldPlugins,
-    pluginsOptions
   )
 
-  const output = resolveOutput(
-    isObject(oldOutput) && isObject(newOutput)
-      ? { ...oldOutput, ...newOutput }
-      : newOutput || oldOutput
-  )
+  const output = isObject(oldOutput) && isObject(newOutput)
+    ? { ...oldOutput, ...newOutput }
+    : defaults(newOutput, oldOutput)
 
   return Object.assign(
     oldOptions,
     newOptions,
     {
-      plugins,
-      output
+      plugins: resolvePlugins(newPlugins || oldPlugins),
+      output: resolveOutput(output)
     }
   )
 }

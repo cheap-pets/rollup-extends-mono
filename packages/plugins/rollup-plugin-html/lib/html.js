@@ -90,7 +90,7 @@ function buildLinksReplacement (links, htmlFileName) {
 }
 
 function basicReplacement (key, values) {
-  return values[key] || ''
+  return values[key] ?? ''
 }
 
 const injectToTemplate = createHtmlReplacer({

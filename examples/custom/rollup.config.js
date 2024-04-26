@@ -64,7 +64,7 @@ const preset = createPreset({
     {
       name: 'html',
       plugin: pluginHtml,
-      option: { replacements: { '{{ title }}': '这是标题' } }
+      option: { replacements: { '{{ timestamp }}': new Date() } }
     },
     {
       name: 'compress',
@@ -91,8 +91,22 @@ const preset = createPreset({
   }
 })
 
+preset.update({
+  pluginsOptions: {
+    html: {
+      replacements: { '{{ timestamp }}': '2024-04-26' }
+    }
+  },
+  plugins: [
+    'delete',
+    'string',
+    'postcss',
+    'html'
+  ]
+})
+
 const config = globToRollupConfig({
-  'src/index-{a-*,b}.js': preset.config()
+  'src/index-{a-*,b}.js': () => preset.config()
 })
 
 export default config

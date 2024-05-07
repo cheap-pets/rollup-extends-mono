@@ -2,9 +2,8 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 
 import { resolve } from 'node:path'
-import { readFile } from 'node:fs/promises'
 import { utils } from '@cheap-pets/rollup-extends'
-import { generateHTML, formatHTML, extractInjectableFiles, createHtmlReplacer } from './html.js'
+import { generateHTML, beautifyHTML, getInjectableFiles, createHtmlReplacer } from './html.js'
 
 const {
   ensureFunction,
@@ -18,48 +17,47 @@ const pluginAction = 'HTM'
 
 export default function plugin (pluginOptions = {}) {
   const {
+    extensions = ['.htm', '.html'],
+    fileNames,
     replacements,
-    // replaceOptions,
-    format,
-    extensions = ['.htm', '.html']
+    beautify: beautifyOptions
   } = pluginOptions
 
-  const idMatcher = createIdMatcher(extensions)
-  const replacer = createHtmlReplacer({ replacements })
+  const assets = {}
+  const matchId = createIdMatcher(extensions)
+  const replaceContent = createHtmlReplacer({ replacements }) || (v => v)
 
-  let codes, sources, loaded
-
-  async function emitFile (sourceOption, outputOptions) {
-    const { id, chunk, queries = {}, scripts, links } = sourceOption
-
-    const template = (codes[id] ??= (await readFile(id)).toString())
-    const assetFileNames = ensureFunction(outputOptions.assetFileNames || '[name].[ext]')
+  async function emitFile (options, outputOptions) {
+    const { chunkName, template, scripts, links, params = {} } = options
+    const { format, assetFileNames } = outputOptions
 
     const assetInfo = {
       type: 'asset',
-      name: `${chunk.name}.html`,
+      name: `${chunkName}.html`,
       source: template
     }
 
+    const getFileName = ensureFunction(fileNames || assetFileNames || '[name].[ext]')
+
     const fileName =
       resolveEmitFileName(
-        queries.fileName || (assetFileNames(assetInfo)),
+        params.fileName || (getFileName(assetInfo)),
         {
-          name: chunk.name,
+          name: chunkName,
           hash: '',
           ext: 'html',
           extname: '.html',
-          format: outputOptions.format !== 'iife' && outputOptions.format
+          format: format !== 'iife' && format
         }
       ) || assetInfo.name
 
-    const title = queries.title
-    const html = generateHTML({ title, template, fileName, scripts, links })
+    const title = params.title
+    const source = generateHTML({ title, template, fileName, scripts, links })
 
     this.emitFile({
       fileName,
       type: 'asset',
-      source: formatHTML(replacer?.(html) || html, format)
+      source: beautifyHTML(replaceContent(source), beautifyOptions)
     })
 
     const outputDir = resolveOutputDir(outputOptions)
@@ -74,62 +72,57 @@ export default function plugin (pluginOptions = {}) {
   return {
     name: 'html',
 
-    buildStart () {
-      codes = {}
-      loaded = {}
-      sources = []
-    },
-
     async resolveId (source, importer) {
-      const matched = idMatcher(source)
-
-      return matched
-        ? (await this.resolve(matched.id, importer)).id + (matched.query || '')
-        : null
-    },
-
-    async load (id) {
-      const matched = idMatcher(id, true)
+      const matched = matchId(source, true)
 
       if (!matched) return null
 
-      this.addWatchFile(matched.id)
+      const id = (await this.resolve(matched.id, importer)).id
+      const asset = (assets[id] ??= { entries: {} })
 
-      Array
-        .from(this.getModuleIds(id))
-        .forEach(moduleId => {
-          if (this.getModuleInfo(moduleId).isEntry) {
-            (sources[moduleId] ??= {})[id] = matched
-          }
-        })
+      for (const moduleId of this.getModuleIds(importer)) {
+        if (this.getModuleInfo(moduleId).isEntry) {
+          asset.entries[moduleId] = { params: matched.params }
+        }
+      }
 
-      return ''
+      return id
     },
 
-    generateBundle (outputOptions, bundle) {
-      const chunks = Object.values(bundle)
-      const chunkFiles = chunks.map(el => el.fileName)
-      const injectableFiles = extractInjectableFiles(chunkFiles, outputOptions.format)
+    transform (code, id) {
+      if (matchId(id)) {
+        assets[id].template = code
+        return ''
+      }
+    },
 
-      const bundleSources = []
+    async generateBundle (outputOptions, bundle) {
+      const files = Object.values(bundle)
+      const injectableFiles = getInjectableFiles(files, outputOptions.format)
 
-      chunks.forEach(chunk => {
-        const entryId = (chunk.type === 'chunk') && chunk.facadeModuleId
+      for (const file of files) {
+        if (file.type !== 'chunk') continue
 
-        if (entryId && sources[entryId] && !loaded[entryId]) {
-          loaded[entryId] = true
+        const rootId = file.facadeModuleId
+        const moduleIds = this.getModuleIds(rootId)
 
-          bundleSources.push(
-            ...Object
-              .values(sources[entryId])
-              .map(source => ({ chunk, ...source, ...injectableFiles }))
+        for (const moduleId of moduleIds) {
+          const asset = matchId(moduleId) && assets[moduleId]
+
+          if (!asset || !asset.template || !asset.entries[rootId]) continue
+
+          await emitFile.call(
+            this,
+            {
+              chunkName: file.name,
+              params: asset.entries[rootId].params,
+              template: asset.template,
+              ...injectableFiles
+            },
+            outputOptions
           )
         }
-      })
-
-      return Promise.all(
-        bundleSources.map(source => emitFile.call(this, source, outputOptions))
-      )
+      }
     }
   }
 }

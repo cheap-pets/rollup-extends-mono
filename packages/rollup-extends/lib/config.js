@@ -50,7 +50,7 @@ function resolveOutputConfig (config, outputOptions, singleEntryName) {
 
     if (output.file) {
       output.file = output.file.replaceAll('[name]', singleEntryName)
-    } else if (output.dir && !isObject(output.input)) {
+    } else if (output.dir && !isObject(config.input)) {
       config.input = { [singleEntryName]: config.input }
     }
   }

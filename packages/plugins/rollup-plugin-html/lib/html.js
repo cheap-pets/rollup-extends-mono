@@ -23,15 +23,16 @@ const InjectableTypes = {
   }
 }
 
-export function extractInjectableFiles (files, outputFormat) {
+export function getInjectableFiles (files, outputFormat) {
   const result = {}
 
   for (const file of files) {
-    const extName = extname(file).substr(1).toLowerCase()
-    const matched = InjectableTypes[extName]
+    const name = file.fileName
+    const extName = extname(name).substr(1).toLowerCase()
+    const resType = InjectableTypes[extName]
 
-    if (matched) {
-      (result[matched.bucket] ??= []).push({ ...matched.attributes(file, outputFormat) })
+    if (resType) {
+      (result[resType.bucket] ??= []).push({ ...resType.attributes(name, outputFormat) })
     }
   }
 
@@ -63,9 +64,9 @@ function attributesToString (attributes) {
     .join(' ')
 }
 
-function buildScriptsReplacement (scripts, htmlFileName) {
+function getScriptsReplacement (scripts, htmlFileName) {
   return scripts
-    .map(el => {
+    ?.map(el => {
       const attrs = attributesToString({
         ...el,
         src: getRelativePath(el.src, htmlFileName)
@@ -76,9 +77,9 @@ function buildScriptsReplacement (scripts, htmlFileName) {
     .join('\n')
 }
 
-function buildLinksReplacement (links, htmlFileName) {
+function getLinksReplacement (links, htmlFileName) {
   return links
-    .map(el => {
+    ?.map(el => {
       const attrs = attributesToString({
         ...el,
         href: getRelativePath(el.href, htmlFileName)
@@ -102,22 +103,16 @@ const injectToTemplate = createHtmlReplacer({
 })
 
 export function generateHTML (options) {
-  const {
-    title,
-    template,
-    fileName,
-    scripts = [],
-    links = []
-  } = options
+  const { template, fileName, title, scripts, links } = options
 
   return injectToTemplate(template, {
     '{{ title }}': title,
-    '{{ links }}': buildLinksReplacement(links, fileName),
-    '{{ scripts }}': buildScriptsReplacement(scripts, fileName)
+    '{{ links }}': getLinksReplacement(links, fileName),
+    '{{ scripts }}': getScriptsReplacement(scripts, fileName)
   })
 }
 
-export function formatHTML (code, options) {
+export function beautifyHTML (code, options) {
   return options === false
     ? code
     : beautify.html_beautify(code, { indent_size: 2, ...options })

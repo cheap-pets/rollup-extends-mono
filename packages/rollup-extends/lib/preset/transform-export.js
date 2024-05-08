@@ -5,7 +5,7 @@ import { isString, isObject, isFunction } from '../utils/type.js'
 function transformPlugins (
   preset,
   plugins,
-  pluginsOptions = {},
+  overwritePluginOptions = {},
   defaultTag = 'default'
 ) {
 

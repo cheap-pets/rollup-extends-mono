@@ -5,13 +5,15 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { globToRollupConfig, createPreset } from '@cheap-pets/rollup-extends'
 
-import pluginPostcss from 'rollup-plugin-postcss'
+import pluginCss from '@cheap-pets/rollup-plugin-css'
 import pluginCopy from '@cheap-pets/rollup-plugin-copy'
 import pluginHtml from '@cheap-pets/rollup-plugin-html'
-import pluginString from '@cheap-pets/rollup-plugin-string'
 import pluginDelete from '@cheap-pets/rollup-plugin-delete'
+import pluginString from '@cheap-pets/rollup-plugin-string'
 import pluginCompress from '@cheap-pets/rollup-plugin-compress'
 import pluginGlobImport from '@cheap-pets/rollup-plugin-glob-import'
+
+import postcss from 'postcss'
 
 process.chdir(
   dirname(fileURLToPath(import.meta.url))
@@ -33,6 +35,8 @@ function myPlugin (options = {}) {
     }
   }
 }
+
+const cssProcessor = postcss([])
 
 const preset = createPreset({
   logLevel: 'info',
@@ -57,9 +61,13 @@ const preset = createPreset({
       plugin: pluginGlobImport
     },
     {
-      name: 'postcss',
-      plugin: pluginPostcss,
-      option: { extract: true }
+      name: 'css',
+      plugin: pluginCss,
+      option: {
+        extract: false,
+        minify: true,
+        transform: (code, id) => cssProcessor.process(code, { from: id })
+      }
     },
     {
       name: 'html',
@@ -84,14 +92,14 @@ const preset = createPreset({
       entryFileNames: 'assets/js/[name].js',
       chunkFileNames: 'assets/[ext]/[name].[ext]',
       assetFileNames: 'assets/[ext]/[name].[ext]'
-    },
-    {
-      dir: 'dist',
-      hashCharacters: 'base36',
-      entryFileNames: 'assets/js/[name].[hash].js',
-      chunkFileNames: 'assets/[ext]/[name].[hash].[ext]',
-      assetFileNames: 'assets/[ext]/[name].[hash].[ext]'
     }
+    // {
+    //   dir: 'dist',
+    //   hashCharacters: 'base36',
+    //   entryFileNames: 'assets/js/[name].[hash].js',
+    //   chunkFileNames: 'assets/[ext]/[name].[hash].[ext]',
+    //   assetFileNames: 'assets/[ext]/[name].[hash].[ext]'
+    // }
   ],
   onwarn (msg, defaultHandler) {
     if (msg.code !== 'UNKNOWN_OPTION') defaultHandler(msg)
@@ -99,7 +107,7 @@ const preset = createPreset({
 })
 
 preset.update({
-  pluginsOptions: {
+  overwritePluginOptions: {
     html: {
       replacements: { '{{ timestamp }}': '2024-04-26' }
     }
@@ -107,13 +115,13 @@ preset.update({
   plugins: [
     'delete',
     'string',
-    'postcss',
+    'css',
     'html'
   ]
 })
 
 const config = globToRollupConfig({
-  'src/index-{a-*,b}.js': () => preset.config()
+  'src/index-*.js': () => preset.config()
 })
 
 export default config

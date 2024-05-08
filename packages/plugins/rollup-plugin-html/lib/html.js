@@ -44,7 +44,7 @@ export function createHtmlReplacer ({ replacements }) {
     ? utils.createCodeReplacer({
       delimiters: ['', ''],
       objectGuards: false,
-      preventAssignment: true,
+      preventAssignment: false,
       replacements
     })
     : code => code

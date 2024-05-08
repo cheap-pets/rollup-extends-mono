@@ -63,7 +63,7 @@ export function resolveRollupConfig (options) {
     return options.map(el => resolveRollupConfig(el))
   }
 
-  const { input, output, name, /* plugins, */ ...config } = options
+  const { input, output, name, ...config } = options
 
   const isStringInput = isString(input)
   const isGlobEntries = Array.isArray(input) || (isStringInput && /[*?|]/.test(input))
@@ -77,7 +77,6 @@ export function resolveRollupConfig (options) {
     ? output.map(el => resolveOutputConfig(config, el, singleEntryName))
     : resolveOutputConfig(config, output, singleEntryName)
 
-  // config.plugins = plugins?.map(el => processPlugin(el))
   config.onLog ??= onLog
 
   return config

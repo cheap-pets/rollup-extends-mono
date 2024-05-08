@@ -1,7 +1,7 @@
 /* eslint-disable security/detect-object-injection */
 /* eslint-disable security/detect-non-literal-fs-filename */
 
-import { resolve } from 'node:path'
+import { resolve, parse } from 'node:path'
 import { utils } from '@cheap-pets/rollup-extends'
 import { generateHTML, beautifyHTML, getInjectableFiles, createHtmlReplacer } from './html.js'
 
@@ -10,7 +10,7 @@ const {
   createIdMatcher,
   resolveOutputDir,
   relativeFromCwd,
-  resolveEmitFileName
+  resolvePlaceholders
 } = utils
 
 const pluginAction = 'HTM'
@@ -27,29 +27,25 @@ export default function plugin (pluginOptions = {}) {
   const matchId = createIdMatcher(extensions)
   const replaceContent = createHtmlReplacer({ replacements }) || (v => v)
 
-  async function emitFile (options, outputOptions) {
-    const { chunkName, template, scripts, links, params = {} } = options
+  function emitFile (options, outputOptions) {
+    const { name, template, scripts, links, params = {} } = options
     const { format, assetFileNames } = outputOptions
 
-    const assetInfo = {
-      type: 'asset',
-      name: `${chunkName}.html`,
-      source: template
-    }
-
+    const assetName = `${name}.html`
+    const assetInfo = { type: 'asset', name: assetName, source: template }
     const getFileName = ensureFunction(fileNames || assetFileNames || '[name].[ext]')
 
     const fileName =
-      resolveEmitFileName(
+      resolvePlaceholders(
         params.fileName || (getFileName(assetInfo)),
         {
-          name: chunkName,
+          name,
           hash: '',
           ext: 'html',
           extname: '.html',
           format: format !== 'iife' && format
         }
-      ) || assetInfo.name
+      ) || assetName
 
     const title = params.title
     const source = generateHTML({ title, template, fileName, scripts, links })
@@ -92,11 +88,12 @@ export default function plugin (pluginOptions = {}) {
     transform (code, id) {
       if (matchId(id)) {
         assets[id].template = code
-        return ''
+
+        return 'export default undefined'
       }
     },
 
-    async generateBundle (outputOptions, bundle) {
+    generateBundle (outputOptions, bundle) {
       const files = Object.values(bundle)
       const injectableFiles = getInjectableFiles(files, outputOptions.format)
 
@@ -106,15 +103,15 @@ export default function plugin (pluginOptions = {}) {
         const rootId = file.facadeModuleId
         const moduleIds = this.getModuleIds(rootId)
 
-        for (const moduleId of moduleIds) {
-          const asset = matchId(moduleId) && assets[moduleId]
+        for (const id of moduleIds) {
+          const asset = assets[id]
 
           if (!asset || !asset.template || !asset.entries[rootId]) continue
 
-          await emitFile.call(
+          emitFile.call(
             this,
             {
-              chunkName: file.name,
+              name: parse(file.fileName).name,
               params: asset.entries[rootId].params,
               template: asset.template,
               ...injectableFiles

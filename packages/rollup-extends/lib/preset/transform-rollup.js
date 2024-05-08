@@ -9,13 +9,13 @@ function isPluginDescriptor (v) {
   )
 }
 
-function transformPlugins (plugins, pluginsMap, pluginsOptions, defaultTag = 'default') {
+function transformPlugins (plugins, pluginsMap, overwritePluginOptions, defaultTag = 'default') {
   function resolveFromString (v, tag = defaultTag) {
     const matched = isString(v) && Object(pluginsMap[v])
 
     if (!matched) return
 
-    const options = pluginsOptions[v]
+    const options = overwritePluginOptions[v]
 
     return {
       plugin: matched.plugin,
@@ -57,10 +57,10 @@ function transformPlugins (plugins, pluginsMap, pluginsOptions, defaultTag = 'de
 
 export function transformRollupOptions (preset, incomingOptions = {}) {
   const { output: oldOutput, plugins: oldPlugins, ...oldOptions } = preset.options
-  const { output: newOutput, plugins: newPlugins, pluginsOptions = {}, ...newOptions } = incomingOptions
+  const { output: newOutput, plugins: newPlugins, overwritePluginOptions = {}, ...newOptions } = incomingOptions
 
   const resolvePlugins = (plugins, defaultTag) => (
-    transformPlugins(plugins, preset.plugins, pluginsOptions, defaultTag)
+    transformPlugins(plugins, preset.plugins, overwritePluginOptions, defaultTag)
   )
 
   const resolveOutput = (outputs = {}) => (

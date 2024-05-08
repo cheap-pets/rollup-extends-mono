@@ -102,7 +102,7 @@ function updatePluginOptions (plugin, options) {
 export function transformUpdateOptions (preset, incomingOptions = {}) {
   const { options, plugins: previousMap } = preset
   const { plugins: oldPlugins, output: oldOutput } = options
-  const { plugins: newPlugins, output: newOutput, pluginsOptions = {}, ...newOptions } = incomingOptions
+  const { plugins: newPlugins, output: newOutput, overwritePluginOptions = {}, ...newOptions } = incomingOptions
 
   const pluginsMap = preset.plugins = {}
 
@@ -138,7 +138,7 @@ export function transformUpdateOptions (preset, incomingOptions = {}) {
   )
 
   Object
-    .entries(pluginsOptions)
+    .entries(overwritePluginOptions)
     .forEach(([pluginName, pluginOptions]) => {
       const plugin = pluginsMap[pluginName]
 

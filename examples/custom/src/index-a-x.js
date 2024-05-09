@@ -7,7 +7,9 @@ import helloWorld from './1.txt'
 // console.log(s)
 
 function helloWorldA () {
-  console.log('a:', helloWorld)
+  const foo = 'bar'
+
+  console.log('a:', helloWorld, foo)
 }
 
 // export {

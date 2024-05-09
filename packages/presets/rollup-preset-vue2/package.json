@@ -1,14 +1,14 @@
 {
-  "name": "@cheap-pets/rollup-preset-page-vue2",
+  "name": "@cheap-pets/rollup-preset-vue2",
   "version": "1.0.0",
   "description": "Bundling configurations for Vue 2.x",
   "engines": {
     "node": ">=18"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "lib/index.js",
   "files": [
-    "index.js"
+    "lib"
   ],
   "author": "scrollbar-ww",
   "license": "MIT",
@@ -26,10 +26,10 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-swc": "^0.3.0",
-    "@swc/core": "^1.4.16",
+    "@swc/core": "^1.5.5",
     "browserslist": "^4.23.0",
     "unplugin-vue2": "^0.1.1",
-    "vite": "^5.2.10",
+    "vite": "^5.2.11",
     "vue": "^2.7.16"
   }
 }

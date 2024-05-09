@@ -99,12 +99,12 @@ function updatePluginOptions (plugin, options) {
     })
 }
 
-export function transformUpdateOptions (preset, incomingOptions = {}) {
-  const { options, plugins: previousMap } = preset
+export function updatePresetConfig (incomingOptions = {}) {
+  const { options, plugins: previousMap } = this
   const { plugins: oldPlugins, output: oldOutput } = options
   const { plugins: newPlugins, output: newOutput, overwritePluginOptions = {}, ...newOptions } = incomingOptions
 
-  const pluginsMap = preset.plugins = {}
+  const pluginsMap = this.plugins = {}
 
   const resolvePlugins = (plugins, defaultTag) => (
     transformPlugins(
@@ -146,4 +146,6 @@ export function transformUpdateOptions (preset, incomingOptions = {}) {
         updatePluginOptions(plugin, pluginOptions)
       }
     })
+
+  return this
 }

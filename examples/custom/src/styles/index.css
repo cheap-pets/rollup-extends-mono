@@ -2,6 +2,10 @@ body {
   color: blue;
 }
 
+body::before {
+  content: 'hello';
+}
+
 div {
   color: blue;
 }

@@ -9,8 +9,7 @@ const {
   ensureFunction,
   createIdMatcher,
   resolveOutputDir,
-  relativeFromCwd,
-  resolvePlaceholders
+  relativeFromCwd
 } = utils
 
 const pluginAction = 'HTM'
@@ -18,52 +17,15 @@ const pluginAction = 'HTM'
 export default function plugin (pluginOptions = {}) {
   const {
     extensions = ['.htm', '.html'],
-    fileNames,
     replacements,
     beautify: beautifyOptions
   } = pluginOptions
 
   const assets = {}
+
   const matchId = createIdMatcher(extensions)
-  const replaceContent = createHtmlReplacer({ replacements }) || (v => v)
-
-  function emitFile (options, outputOptions) {
-    const { name, template, scripts, links, params = {} } = options
-    const { format, assetFileNames } = outputOptions
-
-    const assetName = `${name}.html`
-    const assetInfo = { type: 'asset', name: assetName, source: template }
-    const getFileName = ensureFunction(fileNames || assetFileNames || '[name].[ext]')
-
-    const fileName =
-      resolvePlaceholders(
-        params.fileName || (getFileName(assetInfo)),
-        {
-          name,
-          hash: '',
-          ext: 'html',
-          extname: '.html',
-          format: format !== 'iife' && format
-        }
-      ) || assetName
-
-    const title = params.title
-    const source = generateHTML({ title, template, fileName, scripts, links })
-
-    this.emitFile({
-      fileName,
-      type: 'asset',
-      source: beautifyHTML(replaceContent(source), beautifyOptions)
-    })
-
-    const outputDir = resolveOutputDir(outputOptions)
-    const displayName = relativeFromCwd(resolve(outputDir, fileName))
-
-    this.info({
-      pluginAction,
-      message: `"${displayName}" is generated.`
-    })
-  }
+  const fileNames = ensureFunction(pluginOptions.fileNames)
+  const executeReplacements = createHtmlReplacer({ replacements }) || (v => v)
 
   return {
     name: 'html',
@@ -108,16 +70,42 @@ export default function plugin (pluginOptions = {}) {
 
           if (!asset || !asset.template || !asset.entries[rootId]) continue
 
-          emitFile.call(
-            this,
-            {
-              name: parse(file.fileName).name,
-              params: asset.entries[rootId].params,
-              template: asset.template,
-              ...injectableFiles
-            },
-            outputOptions
+          const params = Object(asset.entries[rootId].params)
+          const name = outputOptions.file ? parse(outputOptions.file).name : file.name
+          const fileName = (fileNames(name) || params.fileName)?.replaceAll('[name]', name)
+
+          const referenceId = this.emitFile({
+            type: 'asset',
+            source: asset.template,
+            ...(
+              fileName
+                ? { fileName, name: 'html' }
+                : { name: `${name}.html` }
+            )
+          })
+
+          const assetName = this.getFileName(referenceId)
+          const assetInfo = bundle[assetName]
+
+          const source = generateHTML({
+            title: params.title,
+            template: assetInfo.source,
+            fileName: assetInfo.fileName,
+            ...injectableFiles
+          })
+
+          assetInfo.source = beautifyHTML(
+            executeReplacements(source),
+            beautifyOptions
           )
+
+          const outputDir = resolveOutputDir(outputOptions)
+          const displayName = relativeFromCwd(resolve(outputDir, assetInfo.fileName))
+
+          this.info({
+            pluginAction,
+            message: `"${displayName}" is generated.`
+          })
         }
       }
     }

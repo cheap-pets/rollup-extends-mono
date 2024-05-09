@@ -5,8 +5,16 @@ import { utils } from '@cheap-pets/rollup-extends'
 
 const { createIdMatcher, isString, isObject, isFunction } = utils
 
-function defaultMinifier (css) {
-  return css
+const getInjectionCode = source => `
+!(function () {
+  const style = document.createElement("style");
+  style.textContent = ${JSON.stringify(source)};
+  document.head.appendChild(style);
+})();
+`
+
+function internalMinify (code) {
+  return code
     .replace(/\/\*(?:(?!\*\/)[\s\S])*\*\/|[\r\n\t]+/g, '')
     .replace(/ {2,}/g, ' ')
     .replace(/ ([{:}]) /g, '$1')
@@ -20,12 +28,12 @@ export default function plugin (pluginOptions = {}) {
     extensions = ['.css'],
     transform = v => v,
     extract = false,
-    minify = false
+    minify: minifyOp = false
   } = pluginOptions
 
   const styles = {}
   const filter = createIdMatcher(extensions)
-  const minifier = isFunction(minify) ? minify : minify && defaultMinifier
+  const minify = isFunction(minifyOp) ? minifyOp : minifyOp && internalMinify
 
   return {
     transform (code, id) {
@@ -40,7 +48,9 @@ export default function plugin (pluginOptions = {}) {
               ? result.code || result.css
               : null
 
-          if (code) styles[id] = { code, map: result.map }
+          if (code) {
+            styles[id] = { code, map: result.map }
+          }
 
           return 'export default undefined'
         })
@@ -59,24 +69,20 @@ export default function plugin (pluginOptions = {}) {
           .join('\n')
           .trim()
 
-        if (code) {
-          const source = minifier ? minifier(code) : code
+        if (!code) continue
 
-          if (extract) {
-            this.emitFile({
-              type: 'asset',
-              name: `${parse(file.fileName).name}.css`,
-              source
-            })
-          } else {
-            file.code += `
-!(function () {
-  const style = document.createElement('style');
-  style.textContent = \`${source.replace(/`/g, '\\`')}\`;
-  document.head.appendChild(style);
-})();
-`
-          }
+        const source = minify
+          ? minify(code)
+          : code
+
+        if (extract) {
+          this.emitFile({
+            type: 'asset',
+            name: `${parse(file.fileName).name}.css`,
+            source
+          })
+        } else {
+          file.code += getInjectionCode(source)
         }
       }
     }

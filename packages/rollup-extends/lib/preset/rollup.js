@@ -55,12 +55,12 @@ function transformPlugins (plugins, pluginsMap, overwritePluginOptions, defaultT
   })
 }
 
-export function transformRollupOptions (preset, incomingOptions = {}) {
-  const { output: oldOutput, plugins: oldPlugins, ...oldOptions } = preset.options
+export function exportRollupConfig (incomingOptions = {}) {
+  const { output: oldOutput, plugins: oldPlugins, ...oldOptions } = this.options
   const { output: newOutput, plugins: newPlugins, overwritePluginOptions = {}, ...newOptions } = incomingOptions
 
   const resolvePlugins = (plugins, defaultTag) => (
-    transformPlugins(plugins, preset.plugins, overwritePluginOptions, defaultTag)
+    transformPlugins(plugins, this.plugins, overwritePluginOptions, defaultTag)
   )
 
   const resolveOutput = (outputs = {}) => (

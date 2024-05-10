@@ -2,6 +2,9 @@
 
 import { parse } from 'node:path'
 import { utils } from '@cheap-pets/rollup-extends'
+import { createMerger } from 'smob'
+
+import CleanCSS from 'clean-css'
 
 const { createIdMatcher, isString, isObject, isFunction } = utils
 
@@ -13,6 +16,7 @@ const getInjectionCode = source => `
 })();
 `
 
+/*
 function internalMinify (code) {
   return code
     .replace(/\/\*(?:(?!\*\/)[\s\S])*\*\/|[\r\n\t]+/g, '')
@@ -22,20 +26,62 @@ function internalMinify (code) {
     .replace(/([;,]) /g, '$1')
     .replace(/ !/g, '$1')
 }
+*/
+
+const merge = createMerger({ array: false })
+
+function resolveMinifier (minifyOpt, cleanCSSOption) {
+  if (isFunction(minifyOpt)) return minifyOpt
+
+  if (minifyOpt !== false) {
+    const level = [true, 1, 2].includes(minifyOpt) ? +minifyOpt : undefined
+
+    const format = !level && !cleanCSSOption && {
+      breaks: {
+        afterAtRule: true,
+        afterBlockBegins: true,
+        afterBlockEnds: true,
+        afterComment: true,
+        afterProperty: true,
+        afterRuleBegins: true,
+        afterRuleEnds: 2,
+        beforeBlockEnds: true,
+        betweenSelectors: true
+      },
+      breakWith: '\n',
+      spaces: {
+        aroundSelectorRelation: true,
+        beforeBlockBegins: true,
+        beforeValue: true
+      },
+      semicolonAfterLastProperty: true,
+      indentBy: 2
+    }
+
+    const minifier = new CleanCSS(
+      merge({}, { ...cleanCSSOption }, { level, format })
+    )
+
+    return code => minifier.minify(code).styles
+  }
+}
 
 export default function plugin (pluginOptions = {}) {
   const {
     extensions = ['.css'],
     transform = v => v,
     extract = false,
-    minify: minifyOp = false
+    cleanCSS,
+    minify: minifyOpt = 0
   } = pluginOptions
 
   const styles = {}
   const filter = createIdMatcher(extensions)
-  const minify = isFunction(minifyOp) ? minifyOp : minifyOp && internalMinify
+  const minify = resolveMinifier(minifyOpt, cleanCSS)
 
   return {
+    name: 'css',
+
     transform (code, id) {
       if (!filter(id)) return
 
@@ -47,6 +93,16 @@ export default function plugin (pluginOptions = {}) {
             : isObject(result)
               ? result.code || result.css
               : null
+
+          // if (result.warnings) {
+          //   for (const warning of result.warnings()) {
+          //     if (!warning.message) {
+          //       warning.message = warning.text
+          //     }
+
+          //     this.warn(warning)
+          //   }
+          // }
 
           if (code) {
             styles[id] = { code, map: result.map }
@@ -76,9 +132,13 @@ export default function plugin (pluginOptions = {}) {
           : code
 
         if (extract) {
+          const name = outputOptions.file
+            ? parse(outputOptions.file).name
+            : file.name
+
           this.emitFile({
             type: 'asset',
-            name: `${parse(file.fileName).name}.css`,
+            name: `${name}.css`,
             source
           })
         } else {

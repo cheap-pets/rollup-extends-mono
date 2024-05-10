@@ -1,7 +1,7 @@
 {
   "name": "@cheap-pets/rollup-plugin-swc",
   "version": "1.0.0",
-  "description": "Transform TypeScript/JavaScript with the SWC",
+  "description": "Transform TypeScript/JavaScript with SWC",
   "engines": {
     "node": ">=18"
   },

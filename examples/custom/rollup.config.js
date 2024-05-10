@@ -5,8 +5,7 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { globToRollupConfig } from '@cheap-pets/rollup-extends'
 import { preset } from '@cheap-pets/rollup-preset-web'
-
-import postcss from 'postcss'
+import { createTranspiler } from '@cheap-pets/rollup-plugin-postcss-adv'
 
 process.chdir(
   dirname(fileURLToPath(import.meta.url))
@@ -14,10 +13,10 @@ process.chdir(
 const isDevEnv = Boolean(process.env.dev)
 const hashPart = isDevEnv ? '' : '.[hash]'
 
-const postcssRunner = postcss([])
+const postcssTransform = createTranspiler()
 
-const myPreset = preset.extend({
-  logLevel: 'info',
+preset.update({
+  logLevel: 'warn',
   output: {
     dir: 'dist',
     entryFileNames: `assets/js/[name]${hashPart}.js`,
@@ -26,9 +25,9 @@ const myPreset = preset.extend({
   },
   overwritePluginOptions: {
     css: {
-      minify: true,
-      extract: true,
-      transform: (code, id) => postcssRunner.process(code, { from: id })
+      // minify: 0,
+      extract: false,
+      transform: postcssTransform
     },
     html: {
       fileNames: '[name].html',
@@ -38,7 +37,7 @@ const myPreset = preset.extend({
 })
 
 const config = globToRollupConfig({
-  'src/index-*.js': () => myPreset.config()
+  'src/index-*.js': () => preset.config()
 })
 
 export default config

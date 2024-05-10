@@ -1,0 +1,29 @@
+{
+  "name": "@cheap-pets/rollup-plugin-postcss-adv",
+  "version": "1.0.0",
+  "description": "Transform scss-like stylesheets code",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "author": "scrollbar-ww",
+  "license": "MIT",
+  "private": false,
+  "peerDependencies": {
+    "browserslist": "^4.0.0",
+    "rollup": "^2.76.0||^3.0.0||^4.0.0"
+  },
+  "dependencies": {
+    "@cheap-pets/rollup-extends": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-css": "workspace:^1.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "postcss-advanced-variables": "^4.0.0",
+    "postcss-calc": "^10.0.0",
+    "postcss-nested": "^6.0.1"
+  }
+}

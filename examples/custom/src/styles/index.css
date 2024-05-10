@@ -4,8 +4,13 @@ body {
 
 body::before {
   content: 'hello';
+  /* hello */
 }
 
 div {
-  color: blue;
+  color: $d;
+
+  & > p {
+    color: red;
+  }
 }

@@ -1,5 +1,7 @@
 import { createPreset } from '@cheap-pets/rollup-extends'
 
+import pluginAlias from '@rollup/plugin-alias'
+import pluginReplace from '@rollup/plugin-replace'
 import pluginCommonjs from '@rollup/plugin-commonjs'
 import pluginNodeResolve from '@rollup/plugin-node-resolve'
 
@@ -14,6 +16,7 @@ import pluginGlobImport from '@cheap-pets/rollup-plugin-glob-import'
 
 const isDevEnv = Boolean(process.env.dev)
 const hashPart = isDevEnv ? '' : '.[hash]'
+const env = isDevEnv ? 'development' : 'production'
 
 export const preset = createPreset({
   plugins: [
@@ -26,6 +29,15 @@ export const preset = createPreset({
       name: 'copy',
       plugin: pluginCopy,
       option: { targets: { 'src/assets': 'dist/assets' } }
+    },
+    {
+      name: 'alias',
+      plugin: pluginAlias
+    },
+    {
+      name: 'replace',
+      plugin: pluginReplace,
+      option: { 'process.env.NODE_ENV': JSON.stringify(env), preventAssignment: true }
     },
     {
       name: 'globImport',
@@ -43,7 +55,7 @@ export const preset = createPreset({
     {
       name: 'html',
       plugin: pluginHtml,
-      option: { fileName: 'dist/[name].html' }
+      option: { fileName: '[name].html' }
     },
     {
       name: 'nodeResolve',

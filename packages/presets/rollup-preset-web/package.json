@@ -23,8 +23,10 @@
     "@cheap-pets/rollup-plugin-html": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-string": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-swc": "workspace:^1.0",
+    "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
     "@swc/core": "^1.5.5",
     "browserslist": "^4.23.0",
     "core-js": "^3.37.0"

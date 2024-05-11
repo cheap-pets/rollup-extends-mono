@@ -1,7 +1,7 @@
 {
-  "name": "@cheap-pets/rollup-preset-node",
+  "name": "@cheap-pets/rollup-preset-base",
   "version": "1.0.0",
-  "description": "Bundle node application",
+  "description": "Rollup preset tool for bundling simple js app.",
   "engines": {
     "node": ">=18"
   },
@@ -17,11 +17,14 @@
     "@cheap-pets/rollup-extends": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-copy": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-delete": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-glob-import": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-string": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-swc": "workspace:^1.0",
+    "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-swc": "^0.3.0",
     "@swc/core": "^1.5.5",
-    "browserslist": "^4.23.0"
+    "browserslist": "^4.23.0",
+    "core-js": "^3.37.0"
   }
 }

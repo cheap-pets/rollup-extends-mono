@@ -11,52 +11,68 @@ import postcssAdvanced from 'postcss-advanced-variables'
 
 import { utils } from '@cheap-pets/rollup-extends'
 
+class PostCssError extends Error {
+  constructor (options = {}) {
+    super()
+
+    const { reason = options.message, file, line, column } = options
+
+    this.message = reason
+    this.location = file && { file, line, column }
+  }
+}
+
 export function createTranspiler (options = {}) {
   const {
-    env = process.env.dev,
-    overrideBrowserslist: targets = options.autoprefixer?.overrideBrowserslist,
-    autoprefixer: autoprefixerOpt = {},
     plugins,
-    ...advOptions
+    browserslistrc,
+    autoprefixer: autoprefixerOpt,
+    advancedVariables: advancedOpt
   } = options
+
+  const overrideBrowserslist = utils.isString(browserslistrc)
+    ? browserslist.loadConfig({ path: browserslistrc })
+    : undefined
 
   const processor = postcss(
     plugins ||
     [
-      postcssAdvanced(advOptions),
+      postcssAdvanced(advancedOpt),
       postcssCalc,
       postcssNest,
-      autoprefixer({
-        ...autoprefixerOpt,
-        overrideBrowserslist:
-          utils.isString(targets)
-            ? browserslist.loadConfig({ env, path: targets })
-            : Array.isArray(targets) ? targets : undefined
-      })
+      autoprefixer({ overrideBrowserslist, ...autoprefixerOpt })
     ]
   )
 
-  return (code, id) => processor.process(code, { from: id })
+  return (code, id) =>
+    processor
+      .process(code, { from: id })
+      .then(res => (
+        {
+          code: res.css,
+          map: res.map,
+          warnings: res.warnings?.()
+        }
+      ))
+      .catch(err => {
+        throw new PostCssError(err)
+      })
 }
 
 export default function plugin (options = {}) {
   const {
     minify,
     extract,
-    transform,
-    extensions = ['.css', '.pcss', '.postcss'],
-    ...transformOptions
+    transform = createTranspiler(options),
+    extensions = ['.css', '.pcss', '.postcss']
   } = options
 
   return Object.assign(
     base({
       minify,
       extract,
-      extensions,
-      transform:
-        transform === undefined
-          ? createTranspiler(transformOptions)
-          : undefined
+      transform,
+      extensions
     }),
     { name: 'postcss' }
   )

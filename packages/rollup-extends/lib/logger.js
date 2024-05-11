@@ -10,6 +10,7 @@ import {
 } from 'colorette'
 
 import { constantCase } from 'change-case'
+import { isString } from './utils/type.js'
 
 const IGNORE_CODES = [
   'UNUSED_EXTERNAL_IMPORT',
@@ -32,7 +33,7 @@ const colors = {
   debug: [v => v, v => v]
 }
 
-const timeHolder = gray('..:..:..:...')
+const timeHolder = gray('            ') // '..:..:..:...'
 
 function formatTime (date) {
   const hours = date.getHours().toString().padStart(2, '0')
@@ -54,9 +55,13 @@ function splitMultiLines (str = '', prefix = '') {
 function resolveLocationLines (loc = {}) {
   const lines = []
 
-  if (loc.file) lines.push(`location.file: ${loc.file}`)
-  if (loc.line) lines.push(`location.line: ${loc.line}`)
-  if (loc.column) lines.push(`location.column: ${loc.column}`)
+  if (isString(loc)) {
+    lines.push(`location: ${loc}`)
+  } else {
+    if (loc.file) lines.push(`file: ${loc.file}`)
+    if (loc.line) lines.push(`line: ${loc.line}`)
+    if (loc.column) lines.push(`column: ${loc.column}`)
+  }
 
   return lines
 }
@@ -68,17 +73,26 @@ function resolveIdLines (id, ids = []) {
 }
 
 function resolveMessageLines (level, log) {
-  const message = log.plugin
-    ? log.message.replace(/^\[plugin .*?\]/, '')
+  let message = isString(log.error)
+    ? log.error
     : log.message
 
+  if (log.plugin) {
+    message = message.replace(/^\[plugin .*?\]/, '')
+  }
+
+  const location = log.loc || log.location
   const lines = [...splitMultiLines(message.trim())]
 
   if (lines.length > 1) lines.unshift('')
 
   if (['warn', 'error'].includes(level)) {
-    lines.push(...resolveIdLines(log.id, log.ids))
-    lines.push(...resolveLocationLines(log.loc))
+    if (location) {
+      lines.push(...resolveLocationLines(location))
+    } else {
+      lines.push(...resolveIdLines(log.id, log.ids))
+    }
+
     lines.push(...splitMultiLines(log.stack, '[Stack]'))
   }
 
@@ -87,7 +101,7 @@ function resolveMessageLines (level, log) {
 
 function resolveLevelType (level, log) {
   return (
-    (level === 'warn' && log.error === true && 'error') ||
+    (level === 'warn' && log.error && 'error') ||
     (level === 'info' && log.success === true && 'success') ||
     (badges[level] && level) ||
     'info'

@@ -8,7 +8,10 @@ export default function plugin (options = {}) {
 
     transform (code, id) {
       return filter(id)
-        ? `const value = ${JSON.stringify(code)};\nexport default value;`
+        ? {
+            code: `export default ${JSON.stringify(code)};`,
+            map: { mappings: '' }
+          }
         : null
     }
   }

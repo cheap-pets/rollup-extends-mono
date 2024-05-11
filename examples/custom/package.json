@@ -16,6 +16,8 @@
     "@cheap-pets/rollup-extends": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-postcss-adv": "workspace:^1.0",
     "@cheap-pets/rollup-preset-web": "workspace:^1.0",
-    "rollup": "^4.17.2"
+    "@cheap-pets/rollup-preset-vue3": "workspace:^1.0",
+    "rollup": "^4.17.2",
+    "vue": "^3.4.27"
   }
 }

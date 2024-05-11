@@ -40,8 +40,6 @@ export default function plugin (options = {}) {
 
   if (browserslistrc) {
     const targets = browserslist.loadConfig({
-      env:
-        process.env.dev,
       path:
         utils.isString(browserslistrc)
           ? browserslistrc

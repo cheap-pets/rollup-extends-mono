@@ -1,4 +1,4 @@
-import pluginVue2 from 'unplugin-vue2/rollup'
+import pluginVue3 from 'unplugin-vue/rollup'
 
 import { preset as basicPreset } from '@cheap-pets/rollup-preset-web'
 
@@ -13,7 +13,7 @@ export const preset = basicPreset.extend({
     'globImport',
     {
       name: 'vue',
-      plugin: pluginVue2,
+      plugin: pluginVue3,
       option: {
         inlineTemplate: !isDevEnv
       }

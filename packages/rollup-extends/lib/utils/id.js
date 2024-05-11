@@ -10,7 +10,7 @@ export function parseQuery (query) {
   )
 }
 
-export function createIdMatcher (extensions = [], parseParams = false) {
+export function createIdMatcher (extensions = []) {
   const extensionsPattern = extensions
     .filter(el => el[0] === '.')
     .map(el => el.substr(1))
@@ -20,7 +20,7 @@ export function createIdMatcher (extensions = [], parseParams = false) {
     ? new RegExp(`((?:.*?)(?:\\.(?:${extensionsPattern})))(\\?.*?)?$`, 'i')
     : /([^?]+)(?:\?(.*))?$/
 
-  return id => {
+  return (id, parseParams = false) => {
     const matched = matcher.exec(id)
 
     if (!matched) return false

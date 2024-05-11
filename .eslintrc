@@ -10,11 +10,10 @@
   },
   "extends": [
     "standard",
-    "plugin:node/recommended",
+    "plugin:n/recommended",
     "plugin:security/recommended-legacy"
   ],
   "plugins": [
-    "node",
     "security"
   ],
   "env": {

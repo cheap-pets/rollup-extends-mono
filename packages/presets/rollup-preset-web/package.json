@@ -1,7 +1,7 @@
 {
   "name": "@cheap-pets/rollup-preset-web",
   "version": "1.0.0",
-  "description": "Bundling configurations for Web Page",
+  "description": "Rollup preset tool for bundling web pages.",
   "engines": {
     "node": ">=18"
   },
@@ -14,21 +14,10 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@cheap-pets/rollup-extends": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-compress": "workspace:^1.0",
-    "@cheap-pets/rollup-plugin-copy": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-css": "workspace:^1.0",
-    "@cheap-pets/rollup-plugin-delete": "workspace:^1.0",
-    "@cheap-pets/rollup-plugin-glob-import": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-html": "workspace:^1.0",
-    "@cheap-pets/rollup-plugin-string": "workspace:^1.0",
-    "@cheap-pets/rollup-plugin-swc": "workspace:^1.0",
-    "@rollup/plugin-alias": "^5.1.0",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-replace": "^5.0.5",
-    "@swc/core": "^1.5.5",
-    "browserslist": "^4.23.0",
-    "core-js": "^3.37.0"
+    "@cheap-pets/rollup-preset-base": "workspace:^1.0",
+    "@rollup/plugin-replace": "^5.0.5"
   }
 }

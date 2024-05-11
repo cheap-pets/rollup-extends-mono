@@ -8,7 +8,7 @@ body::before {
 }
 
 div {
-  color: $d;
+  color: green;
 
   & > p {
     color: red;

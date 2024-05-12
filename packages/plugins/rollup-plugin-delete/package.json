@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-plugin-delete",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Remove target paths and hashed files of chunks",
   "engines": {
     "node": ">=18"

@@ -1,7 +1,7 @@
 {
-  "name": "@cheap-pets/rollup-plugin-css",
+  "name": "@cheap-pets/rollup-plugin-postcss-scss",
   "version": "1.0.0",
-  "description": "Transform stylesheets code while bundling",
+  "description": "Transform scss-like stylesheets code",
   "engines": {
     "node": ">=18"
   },
@@ -14,12 +14,15 @@
   "license": "MIT",
   "private": false,
   "peerDependencies": {
+    "browserslist": "^4.0.0",
     "rollup": "^2.76.0||^3.0.0||^4.0.0"
   },
   "dependencies": {
     "@cheap-pets/rollup-extends": "workspace:^1.0",
-    "@rollup/pluginutils": "^5.1.0",
-    "clean-css": "^5.3.3",
-    "smob": "^1.5.0"
+    "@cheap-pets/rollup-plugin-css": "workspace:^1.0",
+    "@csstools/postcss-sass": "^5.1.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "postcss-scss": "^4.0.9"
   }
 }

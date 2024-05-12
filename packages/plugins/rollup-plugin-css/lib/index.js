@@ -4,13 +4,11 @@ import CleanCSS from 'clean-css'
 
 import { parse } from 'node:path'
 import { utils } from '@cheap-pets/rollup-extends'
-import { createMerger } from 'smob'
 
-const {
-  createIdMatcher,
-  isFunction,
-  isString
-} = utils
+import { createMerger } from 'smob'
+import { createFilter } from '@rollup/pluginutils'
+
+const { isFunction, isString } = utils
 
 const getInjectionCode = source => `
 !(function () {
@@ -72,7 +70,8 @@ function resolveMinifier (minifyOpt, cleanOpt) {
 
 export default function plugin (pluginOptions = {}) {
   const {
-    extensions = ['.css'],
+    include = '**/*.css',
+    exclude,
     transform = v => v,
     extract = false,
     minify: minifyOpt = 0,
@@ -80,8 +79,19 @@ export default function plugin (pluginOptions = {}) {
   } = pluginOptions
 
   const styles = {}
-  const filter = createIdMatcher(extensions)
+  const filter = createFilter(include, exclude)
   const minify = resolveMinifier(minifyOpt, cleanOpt)
+
+  function generateStyleCode (chunk) {
+    const code = Array
+      .from(this.getModuleIds(chunk.facadeModuleId))
+      .map(id => styles[id]?.code)
+      .filter(Boolean)
+      .join('\n')
+      .trim()
+
+    return code && minify(code)
+  }
 
   return {
     name: 'css',
@@ -111,24 +121,25 @@ export default function plugin (pluginOptions = {}) {
         })
     },
 
+    intro (chunk) {
+      if (!extract) {
+        const source = generateStyleCode.call(this, chunk)
+
+        if (source) {
+          return getInjectionCode(source)
+        }
+      }
+    },
+
     generateBundle (outputOptions, bundle) {
+      if (!extract) return
+
       const files = Object.values(bundle)
 
       for (const file of files) {
-        if (file.type !== 'chunk') continue
+        const source = file.type === 'chunk' && generateStyleCode.call(this, file)
 
-        const code = Array
-          .from(this.getModuleIds(file.facadeModuleId))
-          .map(id => styles[id]?.code)
-          .filter(Boolean)
-          .join('\n')
-          .trim()
-
-        if (!code) continue
-
-        const source = minify(code)
-
-        if (extract) {
+        if (source) {
           const name = outputOptions.file
             ? parse(outputOptions.file).name
             : file.name
@@ -138,8 +149,6 @@ export default function plugin (pluginOptions = {}) {
             type: 'asset',
             source
           })
-        } else {
-          file.code += getInjectionCode(source)
         }
       }
     }

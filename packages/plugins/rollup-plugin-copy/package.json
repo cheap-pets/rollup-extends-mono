@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-plugin-copy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Copy files and directories, with optional compression",
   "engines": {
     "node": ">=18"

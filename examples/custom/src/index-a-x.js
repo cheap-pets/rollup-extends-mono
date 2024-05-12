@@ -1,5 +1,5 @@
 import './template/index.html?title=a&fileName1=[name]-a.html'
-import './styles/index.css'
+import './styles/index.scss'
 
 import { createApp } from 'vue'
 import MyComponent from './vue/my-component.vue'

@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-plugin-string",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Transform file content as a default-exported string",
   "engines": {
     "node": ">=18"

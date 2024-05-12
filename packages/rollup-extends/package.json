@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-extends",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Useful utilities for configuring with Rollup",
   "engines": {
     "node": ">=18"

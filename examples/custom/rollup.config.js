@@ -2,7 +2,7 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { globToRollupConfig } from '@cheap-pets/rollup-extends'
 import { preset } from '@cheap-pets/rollup-preset-vue3'
-import { createTranspiler } from '@cheap-pets/rollup-plugin-postcss-adv'
+import { createTranspiler } from '@cheap-pets/rollup-plugin-postcss-scss'
 
 process.chdir(
   dirname(fileURLToPath(import.meta.url))
@@ -10,7 +10,7 @@ process.chdir(
 const isDevEnv = Boolean(process.env.dev)
 const hashPart = isDevEnv ? '' : '.[hash]'
 
-const postcssTransform = createTranspiler({
+const scssTransform = createTranspiler({
   browserslistrc: '.browserslistrc'
 })
 
@@ -29,9 +29,10 @@ preset.update({
   },
   overwritePluginOptions: {
     css: {
+      include: '**/*.{css,scss,sass,pcss,postcss}',
       minify: 0,
       extract: true,
-      transform: postcssTransform
+      transform: scssTransform
     },
     html: {
       fileNames: '[name].html',

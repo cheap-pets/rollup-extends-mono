@@ -4,10 +4,10 @@ import base from '@cheap-pets/rollup-plugin-css'
 import browserslist from 'browserslist'
 
 import postcss from 'postcss'
-import pluginCalc from 'postcss-calc'
-import pluginNest from 'postcss-nested'
+import scssParser from 'postcss-scss'
+
+import pluginSass from '@csstools/postcss-sass'
 import pluginAutoprefixer from 'autoprefixer'
-import pluginAdvancedVars from 'postcss-advanced-variables'
 
 import { utils } from '@cheap-pets/rollup-extends'
 
@@ -27,7 +27,7 @@ export function createTranspiler (options = {}) {
     plugins,
     browserslistrc,
     autoprefixer: autoprefixerOpt,
-    advancedVariables: advancedOpt
+    sass: sassOpt
   } = options
 
   const overrideBrowserslist = utils.isString(browserslistrc)
@@ -37,16 +37,14 @@ export function createTranspiler (options = {}) {
   const processor = postcss(
     plugins ||
     [
-      pluginAdvancedVars(advancedOpt),
-      pluginCalc,
-      pluginNest,
+      pluginSass(sassOpt),
       pluginAutoprefixer({ overrideBrowserslist, ...autoprefixerOpt })
     ]
   )
 
   return (code, id) =>
     processor
-      .process(code, { from: id })
+      .process(code, { syntax: scssParser, from: id })
       .then(res => (
         {
           code: res.css,
@@ -61,7 +59,7 @@ export function createTranspiler (options = {}) {
 
 export default function plugin (options = {}) {
   const {
-    include = '**/*.{css,pcss,postcss}',
+    include = '**/*.{css,scss,sass}',
     exclude,
     minify,
     extract,

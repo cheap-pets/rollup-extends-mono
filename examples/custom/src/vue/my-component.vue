@@ -10,8 +10,14 @@
   const text = ref('hello world')
 </script>
 
-<style>
+<style lang="scss">
+  $primary-color: #333;
+
   .my-component {
     color: #567;
+
+    & > div {
+      color: $primary-color;
+    }
   }
 </style>

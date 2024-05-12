@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-plugin-glob-import",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Import & export multiple modules using glob pattern",
   "engines": {
     "node": ">=18"

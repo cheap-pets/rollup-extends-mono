@@ -27,6 +27,7 @@ export function createTranspiler (options = {}) {
     plugins,
     browserslistrc,
     autoprefixer: autoprefixerOpt,
+    syntax = scssParser,
     sass: sassOpt
   } = options
 
@@ -44,7 +45,7 @@ export function createTranspiler (options = {}) {
 
   return (code, id) =>
     processor
-      .process(code, { syntax: scssParser, from: id })
+      .process(code, { syntax, from: id })
       .then(res => (
         {
           code: res.css,

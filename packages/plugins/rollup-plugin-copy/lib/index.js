@@ -26,10 +26,14 @@ function addFreshPath (total, current) {
 }
 
 function plugin (pluginOptions = {}) {
+  if (Array.isArray(pluginOptions)) {
+    pluginOptions = { targets: pluginOptions }
+  }
+
   const targets = resolveTargets(pluginOptions.targets)
 
-  const compressOption = pluginOptions.compress
-  const compressExtensions = compressOption?.extensions?.map(el => el.toLowerCase()) || ['.js', '.css']
+  const compressOpt = pluginOptions.compress
+  const compressExtensions = compressOpt?.extensions?.map(el => el.toLowerCase()) || ['.js', '.css']
 
   return {
     name: 'copy',
@@ -46,7 +50,7 @@ function plugin (pluginOptions = {}) {
 
         for (const file of files) {
           if (compressExtensions.includes(parse(file).ext.toLowerCase())) {
-            await utils.compress(file, compressOption)
+            await utils.compress(file, compressOpt)
               .then(() =>
                 this.info({ pluginAction: 'CPY > ZIP', success: true, message: `"${file}" is compressed.` })
               )
@@ -77,7 +81,7 @@ function plugin (pluginOptions = {}) {
                 this.info({ pluginAction, success: true, message: `"${src}" -> "${dest}".` })
               )
               .then(() =>
-                !this.meta.watchMode && compressOption && internalCompress(to, isDir)
+                !this.meta.watchMode && compressOpt && internalCompress(to, isDir)
               )
           } catch {
             this.warn({ pluginAction, error: true, message: `failed to copy "${src}".` })

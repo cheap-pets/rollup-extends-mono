@@ -16,18 +16,18 @@ export default function plugin (options = {}) {
 
       const outputDir = resolveOutputDir(outputOptions)
 
-      for (const chunk of Object.values(bundle)) {
-        if (extensions?.includes(extname(chunk.fileName).toLowerCase()) === false) return
+      for (const file of Object.values(bundle)) {
+        if (extensions?.includes(extname(file.fileName).toLowerCase()) === false) return
 
-        const file = resolve(outputDir, chunk.fileName)
-        const name = relativeFromCwd(file)
+        const fileName = resolve(outputDir, file.fileName)
+        const dispName = relativeFromCwd(fileName)
 
-        await compress(file, options)
+        await compress(fileName, options)
           .then(() =>
-            this.info({ pluginAction, success: true, message: `"${name}" is compressed.` })
+            this.info({ pluginAction, success: true, message: `"${dispName}" is compressed.` })
           )
           .catch(() =>
-            this.warn({ pluginAction, message: `failed to compress "${name}".` })
+            this.warn({ pluginAction, message: `failed to compress "${dispName}".` })
           )
       }
     }

@@ -121,9 +121,6 @@ importers:
       '@cheap-pets/rollup-extends':
         specifier: workspace:^1.0
         version: link:../../rollup-extends
-      '@rollup/pluginutils':
-        specifier: ^5.1.0
-        version: 5.1.0(rollup@4.17.2)
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0

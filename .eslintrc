@@ -13,9 +13,6 @@
     "plugin:n/recommended",
     "plugin:security/recommended-legacy"
   ],
-  "plugins": [
-    "security"
-  ],
   "env": {
     "es2022": true,
     "node": true

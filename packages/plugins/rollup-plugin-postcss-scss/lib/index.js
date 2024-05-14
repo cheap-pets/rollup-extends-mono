@@ -6,6 +6,7 @@ import browserslist from 'browserslist'
 import postcss from 'postcss'
 import scssParser from 'postcss-scss'
 
+import pluginVars from 'postcss-simple-vars'
 import pluginSass from '@csstools/postcss-sass'
 import pluginAutoprefixer from 'autoprefixer'
 
@@ -26,6 +27,7 @@ export function createTranspiler (options = {}) {
   const {
     plugins,
     browserslistrc,
+    variables,
     autoprefixer: autoprefixerOpt,
     syntax = scssParser,
     sass: sassOpt
@@ -35,17 +37,21 @@ export function createTranspiler (options = {}) {
     ? browserslist.loadConfig({ path: browserslistrc })
     : undefined
 
+  const codePrefix = variables
+    ? Object.entries(variables).map(([key, value]) => `$${key}: ${value};\n`).join('')
+    : ''
+
   const processor = postcss(
-    plugins ||
-    [
-      pluginSass(sassOpt),
-      pluginAutoprefixer({ overrideBrowserslist, ...autoprefixerOpt })
+    plugins || [
+      pluginSass({ ...sassOpt }),
+      pluginAutoprefixer({ overrideBrowserslist, ...autoprefixerOpt }),
+      ...(variables ? [pluginVars({ variables })] : [])
     ]
   )
 
   return (code, id) =>
     processor
-      .process(code, { syntax, from: id })
+      .process(`${codePrefix}${code}`, { syntax, from: id })
       .then(res => (
         {
           code: res.css,

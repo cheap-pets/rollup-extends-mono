@@ -26,6 +26,7 @@ export function createTranspiler (options = {}) {
   const {
     plugins,
     browserslistrc,
+    variables,
     autoprefixer: autoprefixerOpt,
     advancedVariables: advancedOpt
   } = options
@@ -37,7 +38,7 @@ export function createTranspiler (options = {}) {
   const processor = postcss(
     plugins ||
     [
-      pluginAdvancedVars(advancedOpt),
+      pluginAdvancedVars({ variables, ...advancedOpt }),
       pluginCalc,
       pluginNest,
       pluginAutoprefixer({ overrideBrowserslist, ...autoprefixerOpt })

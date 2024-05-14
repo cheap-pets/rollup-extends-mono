@@ -8,9 +8,9 @@ body::before {
 }
 
 div {
-  color: green;
+  color: $color1;
 
   & > p {
-    color: red;
+    color: $color2;
   }
 }

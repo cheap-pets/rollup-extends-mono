@@ -11,7 +11,11 @@ const isDevEnv = Boolean(process.env.dev)
 const hashPart = isDevEnv ? '' : '.[hash]'
 
 const scssTransform = createTranspiler({
-  browserslistrc: '.browserslistrc'
+  browserslistrc: '.browserslistrc',
+  variables: {
+    color1: '#369',
+    color2: '#258'
+  }
 })
 
 preset.update({

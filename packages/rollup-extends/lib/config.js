@@ -82,7 +82,7 @@ export function resolveRollupConfig (options) {
   return config
 }
 
-export function globToRollupConfig (input, configHandler) {
+export function globToRollupConfig (input, config) {
   const isCombinedOption = isObject(input)
 
   if (isCombinedOption) {
@@ -92,7 +92,7 @@ export function globToRollupConfig (input, configHandler) {
       .flat()
   }
 
-  const getConfig = ensureFunction(configHandler)
+  const getConfig = ensureFunction(config)
 
   return globInputs(input)
     .map(

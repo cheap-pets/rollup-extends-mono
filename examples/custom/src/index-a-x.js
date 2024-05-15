@@ -1,4 +1,4 @@
-import './template/index.html?title=a&fileName1=[name]-a.html'
+import '@/template/index.html?title=a&fileName1=[name]-a.html'
 import './styles/index.scss'
 
 import { createApp } from 'vue'

@@ -142,7 +142,7 @@ export function updatePresetConfig (incomingOptions = {}) {
     .forEach(([pluginName, pluginOptions]) => {
       const plugin = pluginsMap[pluginName]
 
-      if (plugin && options !== undefined) {
+      if (plugin && pluginOptions !== undefined) {
         updatePluginOptions(plugin, pluginOptions)
       }
     })

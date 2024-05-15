@@ -1,3 +1,7 @@
+/* eslint-disable security/detect-non-literal-regexp */
+/* eslint-disable security/detect-object-injection */
+/* eslint-disable security/detect-unsafe-regex */
+
 /*
  * These codes are adapted from [@rollup/plugin-replace],
  * created by [Rich Harris <richard.a.harris@gmail.com>],
@@ -9,7 +13,6 @@ import MagicString from 'magic-string'
 import { ensureFunction } from './type.js'
 
 const OBJECT_KEY_PATTERN =
-  // eslint-disable-next-line security/detect-unsafe-regex
   /^([_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*)(\.([_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*))+$/
 
 function assignTypeofReplacements (replacements) {
@@ -45,7 +48,6 @@ function mapToFunctions (replacements) {
   return Object
     .entries(replacements)
     .reduce(
-      // eslint-disable-next-line security/detect-object-injection
       (result, [key, value]) => (result[key] = ensureFunction(value)) && result,
       {}
     )
@@ -72,7 +74,6 @@ export function createCodeReplacer (options) {
   const keys = Object.keys(functions).sort((a, b) => b.length - a.length).map(escape)
   const lookahead = preventAssignment ? '(?!\\s*(=[^=]|:[^:]))' : ''
 
-  // eslint-disable-next-line security/detect-non-literal-regexp
   const pattern = keys.length && new RegExp(
     `${delimiters[0]}(${keys.join('|')})${delimiters[1]}${lookahead}`,
     'g'
@@ -100,4 +101,42 @@ export function createCodeReplacer (options) {
       ? magicString.toString()
       : code
   }
+}
+
+function escapeSepChars (s) {
+  return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+}
+
+function buildPlaceholdersRegExp (sep = '{{}}') {
+  if (!sep || sep.length < 2) return
+
+  const half = Math.floor(sep.length / 2)
+  const sepL = escapeSepChars(sep.slice(0, half).trim())
+  const sepR = escapeSepChars(sep.slice(half).trim())
+
+  return sepL && sepR && new RegExp(`${sepL}\\s*([a-zA-Z0-9_-]+)\\s*${sepR}`, 'g')
+}
+
+export function findPlaceholders (str, sep) {
+  const regExp = buildPlaceholdersRegExp(sep)
+  const result = {}
+
+  if (regExp) {
+    let match
+
+    while ((match = regExp.exec(str))) result[match[1]] = true
+  }
+
+  return Object.keys(result)
+}
+
+export function replacePlaceholders (str, replacements, sep) {
+  const regExp = buildPlaceholdersRegExp(sep)
+
+  return regExp
+    ? str.replaceAll(regExp, (match, placeholder) => {
+      const key = placeholder.trim()
+      return (key && replacements[key]) || match
+    })
+    : str
 }

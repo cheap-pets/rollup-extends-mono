@@ -7,7 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "rollup -c --include=aX,b"
+    "build": "rollup -c --environment=dev"
   },
   "author": "scrollbar-ww",
   "license": "MIT",

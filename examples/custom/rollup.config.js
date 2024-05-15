@@ -1,4 +1,4 @@
-import { dirname } from 'node:path'
+import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { globToRollupConfig } from '@cheap-pets/rollup-extends'
 import { preset } from '@cheap-pets/rollup-preset-vue3'
@@ -19,7 +19,7 @@ const scssTransform = createTranspiler({
 })
 
 preset.update({
-  logLevel: 'warn',
+  logLevel: isDevEnv ? 'info' : 'warn',
   external: ['vue'],
   output: {
     format: 'iife',
@@ -32,6 +32,11 @@ preset.update({
     }
   },
   overwritePluginOptions: {
+    alias: {
+      entries: {
+        '@': resolve('src')
+      }
+    },
     css: {
       include: '**/*.{css,scss,sass,pcss,postcss}',
       minify: 0,

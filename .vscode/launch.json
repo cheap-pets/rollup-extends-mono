@@ -11,8 +11,7 @@
         "-F",
         "@cheap-pets/rollup-example-custom",
         "run",
-        "build",
-        "--watch"
+        "build"
       ],
       "runtimeExecutable": "pnpm",
       "skipFiles": [

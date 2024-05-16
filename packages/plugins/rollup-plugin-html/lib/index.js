@@ -3,13 +3,14 @@
 
 import { resolve, parse } from 'node:path'
 import { utils } from '@cheap-pets/rollup-extends'
-import { generateHTML, beautifyHTML, getInjectableFiles, createHtmlReplacer } from './html.js'
+import { getInjectableFiles, generateHTML } from './html.js'
 
 const {
   ensureFunction,
   createIdMatcher,
+  relativeFromCwd,
   resolveOutputDir,
-  relativeFromCwd
+  extractPlaceholders
 } = utils
 
 const pluginAction = 'HTM'
@@ -17,7 +18,6 @@ const pluginAction = 'HTM'
 export default function plugin (pluginOptions = {}) {
   const {
     extensions = ['.htm', '.html'],
-    replacements,
     beautify: beautifyOptions
   } = pluginOptions
 
@@ -25,7 +25,7 @@ export default function plugin (pluginOptions = {}) {
 
   const matchId = createIdMatcher(extensions)
   const fileNames = ensureFunction(pluginOptions.fileNames)
-  const executeReplacements = createHtmlReplacer({ replacements }) || (v => v)
+  const replacements = ensureFunction(pluginOptions.replacements)
 
   return {
     name: 'html',
@@ -48,8 +48,11 @@ export default function plugin (pluginOptions = {}) {
     },
 
     transform (code, id) {
-      if (matchId(id)) {
-        assets[id].template = code
+      if (matchId(id) && assets[id]) {
+        Object.assign(assets[id], {
+          template: code,
+          placeholders: extractPlaceholders(code)
+        })
 
         return 'export default undefined'
       }
@@ -85,22 +88,20 @@ export default function plugin (pluginOptions = {}) {
           })
 
           const assetName = this.getFileName(referenceId)
-          const assetInfo = bundle[assetName]
+          const generated = bundle[assetName]
 
-          const source = generateHTML({
-            title: params.title,
-            template: assetInfo.source,
-            fileName: assetInfo.fileName,
+          generated.source = generateHTML({
+            chunk: file,
+            asset: generated,
+            template: asset.template,
+            placeholders: asset.placeholders,
+            params,
+            replacements,
             ...injectableFiles
-          })
-
-          assetInfo.source = beautifyHTML(
-            executeReplacements(source),
-            beautifyOptions
-          )
+          }, beautifyOptions)
 
           const outputDir = resolveOutputDir(outputOptions)
-          const displayName = relativeFromCwd(resolve(outputDir, assetInfo.fileName))
+          const displayName = relativeFromCwd(resolve(outputDir, generated.fileName))
 
           this.info({
             pluginAction,

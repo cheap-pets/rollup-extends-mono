@@ -39,22 +39,11 @@ export function getInjectableFiles (files, outputFormat) {
   return result
 }
 
-export function createHtmlReplacer ({ replacements }) {
-  return replacements
-    ? utils.createCodeReplacer({
-      delimiters: ['', ''],
-      objectGuards: false,
-      preventAssignment: false,
-      replacements
-    })
-    : code => code
-}
-
 function getRelativePath (src, htmlFileName) {
-  const dir = dirname(htmlFileName)
-  const relativePath = relative(dir, src)
+  const htmlDir = dirname(htmlFileName)
+  const related = relative(htmlDir, src)
 
-  return relativePath.replaceAll('\\', '/')
+  return related.replaceAll('\\', '/')
 }
 
 function attributesToString (attributes) {
@@ -90,30 +79,33 @@ function getLinksReplacement (links, htmlFileName) {
     .join('\n')
 }
 
-function basicReplacement (key, values) {
-  return values[key] ?? ''
-}
+function buildReplacements ({ replacements: getExternalReplacements, ...options }) {
+  const {
+    asset,
+    links,
+    scripts,
+    params,
+    placeholders
+  } = options
 
-const injectToTemplate = createHtmlReplacer({
-  replacements: {
-    '{{ title }}': basicReplacement,
-    '{{ links }}': basicReplacement,
-    '{{ scripts }}': basicReplacement
+  if (!placeholders.length) return
+
+  return {
+    ...params,
+    links: getLinksReplacement(links, asset.fileName) || '',
+    scripts: getScriptsReplacement(scripts, asset.fileName) || '',
+    ...getExternalReplacements(options)
   }
-})
-
-export function generateHTML (options) {
-  const { template, fileName, title, scripts, links } = options
-
-  return injectToTemplate(template, {
-    '{{ title }}': title,
-    '{{ links }}': getLinksReplacement(links, fileName),
-    '{{ scripts }}': getScriptsReplacement(scripts, fileName)
-  })
 }
 
-export function beautifyHTML (code, options) {
-  return options === false
-    ? code
-    : beautify.html_beautify(code, { indent_size: 2, ...options })
+export function generateHTML (options, beautifyOptions) {
+  const replacements = buildReplacements(options)
+
+  const code = replacements
+    ? utils.replacePlaceholders(options.template, replacements)
+    : options.template
+
+  return beautifyOptions !== false
+    ? beautify.html_beautify(code, { indent_size: 2, preserve_newlines: false, ...beautifyOptions })
+    : code
 }

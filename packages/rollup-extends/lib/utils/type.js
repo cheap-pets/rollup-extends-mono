@@ -22,6 +22,10 @@ function isObject (value) {
   return typeOf(value) === 'object'
 }
 
+function isRegExp (value) {
+  return typeOf(value) === 'regexp'
+}
+
 function isFunction (value) {
   // function, asyncfunction, generatorfunction
   return typeOf(value).includes('function')
@@ -37,6 +41,7 @@ export {
   defaults,
   isString,
   isObject,
+  isRegExp,
   isFunction,
   ensureFunction
 }

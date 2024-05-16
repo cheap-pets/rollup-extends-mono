@@ -45,7 +45,9 @@ preset.update({
     },
     html: {
       fileNames: '[name].html',
-      replacements: { '{{ timestamp }}': '2024-04-26' }
+      replacements () {
+        return { timestamp: new Date() }
+      }
     }
   }
 })

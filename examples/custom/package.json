@@ -1,5 +1,5 @@
 {
-  "name": "@cheap-pets/rollup-example-custom",
+  "name": "custom-example",
   "version": "1.0.0",
   "description": "打包自定义项目示例",
   "type": "module",

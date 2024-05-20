@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-preset-vue3",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Bundling configurations for Vue 3.x",
   "engines": {
     "node": ">=18"

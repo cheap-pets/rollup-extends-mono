@@ -7,7 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build:custom": "pnpm --filter \"@cheap-pets/rollup-example-custom\" run build",
+    "build:custom": "pnpm --filter \"custom-example\" run build",
     "pub": "pnpm --filter=@cheap-pets/rollup-* publish --access=public"
   },
   "author": "scrollbar-ww",
@@ -16,6 +16,15 @@
   "config": {
     "cz-customizable": {
       "config": ".cz-config.cjs"
+    }
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "unplugin-vue2": {
+        "peerDependencies": {
+           "@vue/compiler-sfc": "^2.7.16"
+        }
+      }
     }
   }
 }

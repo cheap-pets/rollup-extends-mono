@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+packageExtensionsChecksum: 1b3597355d595199e33f3c881467888e
+
 importers:
 
   .: {}
@@ -19,6 +21,9 @@ importers:
       '@cheap-pets/rollup-plugin-postcss-scss':
         specifier: workspace:^1.0
         version: link:../../packages/plugins/rollup-plugin-postcss-scss
+      '@cheap-pets/rollup-preset-vue2':
+        specifier: workspace:^1.0
+        version: link:../../packages/presets/rollup-preset-vue2
       '@cheap-pets/rollup-preset-vue3':
         specifier: workspace:^1.0
         version: link:../../packages/presets/rollup-preset-vue3
@@ -28,9 +33,6 @@ importers:
       rollup:
         specifier: ^4.17.2
         version: 4.17.2
-      vue:
-        specifier: ^3.4.27
-        version: 3.4.27
 
   examples/service:
     devDependencies:
@@ -268,9 +270,12 @@ importers:
       '@cheap-pets/rollup-preset-web':
         specifier: workspace:^1.0
         version: link:../rollup-preset-web
+      '@vue/compiler-sfc':
+        specifier: ^2.7.16
+        version: 2.7.16
       unplugin-vue2:
         specifier: ^0.1.1
-        version: 0.1.1(vue@2.7.16)
+        version: 0.1.1(@vue/compiler-sfc@2.7.16)(vue@2.7.16)
       vite:
         specifier: ^5.2.0
         version: 5.2.11(sass@1.77.1)
@@ -283,6 +288,9 @@ importers:
       '@cheap-pets/rollup-preset-web':
         specifier: workspace:^1.0
         version: link:../rollup-preset-web
+      '@vue/compiler-sfc':
+        specifier: ^3.4.0
+        version: 3.4.27
       unplugin-vue:
         specifier: ^5.0.0
         version: 5.0.5(sass@1.77.1)(vue@3.4.27)
@@ -1251,6 +1259,7 @@ packages:
     resolution: {integrity: sha512-5fY7uf0AUJ7Fa/zNUZFq4YvFYP+KqVuHZoMZ6nLZV+H9tFxx/GKfCS9HUQm2zH3f5fdhmWHremOCQ1Z8YlqbSw==}
     engines: {node: ^14.18.0 || >= 16.0.0}
     peerDependencies:
+      '@vue/compiler-sfc': ^2.7.16
       vue: ^2.7.0-0
 
   unplugin-vue@5.0.5:
@@ -2137,8 +2146,9 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unplugin-vue2@0.1.1(vue@2.7.16):
+  unplugin-vue2@0.1.1(@vue/compiler-sfc@2.7.16)(vue@2.7.16):
     dependencies:
+      '@vue/compiler-sfc': 2.7.16
       unplugin: 1.10.1
       vue: 2.7.16
 

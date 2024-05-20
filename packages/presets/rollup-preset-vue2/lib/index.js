@@ -1,4 +1,5 @@
 import pluginVue2 from 'unplugin-vue2/rollup'
+import * as compiler from '@vue/compiler-sfc'
 
 import { preset as basicPreset } from '@cheap-pets/rollup-preset-web'
 
@@ -15,6 +16,7 @@ export const preset = basicPreset.extend({
       name: 'vue',
       plugin: pluginVue2,
       option: {
+        compiler,
         inlineTemplate: !isDevEnv
       }
     },

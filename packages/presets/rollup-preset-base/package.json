@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-preset-base",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rollup preset tool for bundling simple js app.",
   "engines": {
     "node": ">=18"
@@ -23,7 +23,7 @@
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@swc/core": "^1.5.5",
+    "@swc/core": "1.5.7",
     "browserslist": "^4.23.0",
     "core-js": "^3.37.0"
   }

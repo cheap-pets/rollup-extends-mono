@@ -27,8 +27,7 @@ function isRegExp (value) {
 }
 
 function isFunction (value) {
-  // function, asyncfunction, generatorfunction
-  return typeOf(value).includes('function')
+  return typeOf(value).includes('function') // function, asyncfunction, generatorfunction
 }
 
 function ensureFunction (value) {

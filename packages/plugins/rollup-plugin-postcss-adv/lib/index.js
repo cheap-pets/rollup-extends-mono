@@ -52,7 +52,8 @@ export function createTranspiler (options = {}) {
         {
           code: res.css,
           map: res.map,
-          warnings: res.warnings?.()
+          warnings: res.warnings?.(),
+          dependencies: res.messages?.map(el => el.type === 'dependency' && el.file).filter(Boolean)
         }
       ))
       .catch(err => {

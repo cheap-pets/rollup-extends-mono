@@ -102,12 +102,14 @@ export default function plugin (pluginOptions = {}) {
       return Promise
         .resolve(transform(code, id))
         .then(result => {
-          const { code: css, map, warnings } =
+          const { code: css, map, warnings, dependencies } =
             isString(result) ? { code: result } : Object(result)
 
-          warnings?.forEach?.(el =>
-            el.message && this.warn(isString(el) ? el : el.message)
-          )
+          if (this.meta.watchMode) {
+            dependencies?.forEach(el => this.addWatchFile(el))
+          }
+
+          warnings?.forEach?.(el => this.warn(isString(el) ? el : el.message))
 
           if (css) {
             styles[id] = { code: css, map }

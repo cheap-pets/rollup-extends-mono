@@ -1,7 +1,7 @@
 {
   "name": "@cheap-pets/rollup-plugin-postcss-scss",
-  "version": "1.0.2",
-  "description": "Transform scss-like stylesheets code",
+  "version": "1.0.3",
+  "description": "Transform scss code",
   "engines": {
     "node": ">=18"
   },

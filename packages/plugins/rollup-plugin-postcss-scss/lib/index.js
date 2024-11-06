@@ -43,7 +43,7 @@ export function createTranspiler (options = {}) {
 
   const processor = postcss(
     plugins || [
-      pluginSass({ ...sassOpt }),
+      pluginSass({ silenceDeprecations: ['legacy-js-api'], ...sassOpt }),
       pluginAutoprefixer({ overrideBrowserslist, ...autoprefixerOpt }),
       ...(variables ? [pluginVars({ variables })] : [])
     ]

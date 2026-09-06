@@ -12,7 +12,10 @@ export default function plugin (options = {}) {
     name: 'compress',
 
     async writeBundle (outputOptions, bundle) {
-      if (this.meta.watchMode && options.watchMode !== true) return
+      if (
+        options.compress === false ||
+        (this.meta.watchMode && options.watchMode !== true)
+      ) return
 
       const outputDir = resolveOutputDir(outputOptions)
 

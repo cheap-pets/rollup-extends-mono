@@ -4,7 +4,7 @@
   "description": "打包自定义项目示例",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "rollup -c --environment=dev"
@@ -19,6 +19,9 @@
     "@cheap-pets/rollup-preset-web": "workspace:^1.0",
     "@cheap-pets/rollup-preset-vue2": "workspace:^1.0",
     "@cheap-pets/rollup-preset-vue3": "workspace:^1.0",
-    "rollup": "^4.17.2"
+    "pinia": "^2.1.7",
+    "rollup": "^4.17.2",
+    "vue-demi": "^0.14.8",
+    "vue": "^2.7.16"
   }
 }

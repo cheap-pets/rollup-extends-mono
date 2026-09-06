@@ -1,10 +1,10 @@
 {
   "name": "@cheap-pets/rollup-extends-mono",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utilities, plugins, and preset configurations for Rollup",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build:custom": "pnpm --filter \"custom-example\" run build",
@@ -22,9 +22,16 @@
     "packageExtensions": {
       "unplugin-vue2": {
         "peerDependencies": {
-           "@vue/compiler-sfc": "^2.7.16"
+          "@vue/compiler-sfc": "^2.7.16"
         }
       }
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@swc/core",
+      "core-js",
+      "esbuild",
+      "vue-demi"
+    ]
   }
 }

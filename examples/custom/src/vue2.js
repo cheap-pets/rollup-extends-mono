@@ -9,7 +9,7 @@ const app = new Vue({
   render: h => h(MyComponent)
 })
 
-app.mount('#app')
+app.$mount('#app')
 
 function helloWorldA () {
   const foo = 'bar'

@@ -4,7 +4,7 @@
   "description": "打包服务示例",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "rollup -c"

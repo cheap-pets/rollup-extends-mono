@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-preset-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rollup preset tool for bundling web pages.",
   "engines": {
     "node": ">=18"
@@ -14,7 +14,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@cheap-pets/rollup-plugin-compress": "workspace:^1.0",
+    "@cheap-pets/rollup-plugin-compress": "workspace:^1.0.2",
     "@cheap-pets/rollup-plugin-css": "workspace:^1.0",
     "@cheap-pets/rollup-plugin-html": "workspace:^1.0",
     "@cheap-pets/rollup-preset-base": "workspace:^1.0",

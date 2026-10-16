@@ -13,6 +13,9 @@
   "author": "scrollbar-ww",
   "license": "MIT",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "browserslist": "^4.0.0",
     "rollup": "^2.76.0||^3.0.0||^4.0.0"

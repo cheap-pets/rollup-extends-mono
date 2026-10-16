@@ -13,6 +13,9 @@
   "author": "scrollbar-ww",
   "license": "MIT",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@cheap-pets/rollup-preset-web": "workspace:^1.0",
     "@vue/compiler-sfc": "^2.7.16",

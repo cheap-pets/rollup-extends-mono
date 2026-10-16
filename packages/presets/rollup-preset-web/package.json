@@ -1,6 +1,6 @@
 {
   "name": "@cheap-pets/rollup-preset-web",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Rollup preset tool for bundling web pages.",
   "engines": {
     "node": ">=18"

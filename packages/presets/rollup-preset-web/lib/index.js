@@ -34,7 +34,8 @@ export const preset = basicPreset.extend({
     'commonjs',
     {
       name: 'compress',
-      plugin: pluginCompress
+      plugin: pluginCompress,
+      option: isDevEnv ? { compress: false } : undefined
     }
   ]
 })
